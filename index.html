@@ -36,7 +36,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .ni.active svg{opacity:1}
 .nbadge{margin-left:auto;font-size:10px;padding:1px 6px;border-radius:9px;font-weight:700;background:#E24B4A;color:#fff}
 .nbadge.g{background:#1EA064}
-.sfoot{padding:10px 16px;border-top:1px solid rgba(255,255,255,.08);font-size:10px;color:rgba(255,255,255,.28);line-height:1.6}
+.sfoot{padding:10px 16px;border-top:1px solid rgba(255,255,255,.08);font-size:10px;color:rgba(255,255,255,.28);line-height:1.6;word-break:break-all}
 /* TOPBAR */
 .main{flex:1;display:flex;flex-direction:column;overflow:hidden}
 .topbar{background:var(--bg);border-bottom:1px solid var(--bdr);padding:0 22px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
@@ -45,7 +45,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .live-pill{display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;background:var(--lgreen);color:var(--teal);border:1px solid #82D4B0}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.3s infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
-.content{flex:1;overflow-y:auto;padding:18px 22px}
+.content{flex:1;overflow-y:auto;padding:18px 22px;-webkit-overflow-scrolling:touch}
 /* CARDS */
 .card{background:var(--bg);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;margin-bottom:14px}
 .ch{padding:12px 15px 9px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -155,6 +155,101 @@ input:focus,select:focus{outline:2px solid var(--mid);outline-offset:1px}
 .arow{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid var(--bdr);font-size:12px}
 .ats{font-size:10px;color:var(--tx2);min-width:130px;flex-shrink:0;line-height:1.5}
 .at{font-family:monospace;font-size:10px;padding:1px 5px;border-radius:3px;background:var(--g1);color:var(--tx2);margin-right:4px}
+
+/* ── MOBILE HAMBURGER BUTTON ─────────────────────────────────────────────── */
+.hamburger{display:none;flex-direction:column;justify-content:center;align-items:center;width:36px;height:36px;cursor:pointer;gap:5px;flex-shrink:0;border:none;background:transparent;padding:0}
+.hamburger span{display:block;width:20px;height:2px;background:var(--tx);border-radius:2px;transition:all .2s}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:99}
+
+/* ── MOBILE RESPONSIVE ───────────────────────────────────────────────────── */
+@media(max-width:768px){
+  /* Show hamburger, hide on desktop */
+  .hamburger{display:flex}
+
+  /* Sidebar slides in as drawer */
+  .sidebar{
+    position:fixed;top:0;left:0;height:100%;z-index:100;
+    transform:translateX(-100%);transition:transform .25s ease;
+    width:260px;min-width:260px;
+  }
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay.open{display:block}
+
+  /* Main takes full width */
+  .main{width:100%;min-width:0}
+
+  /* Topbar tighter on mobile */
+  .topbar{padding:0 12px;height:48px}
+  .topbar-title{font-size:14px}
+  .live-pill span:last-child{display:none} /* hide txns/min text */
+  #clock{display:none}
+
+  /* Content padding */
+  .content{padding:12px}
+
+  /* Metric cards — 2 columns on mobile */
+  .mrow{grid-template-columns:1fr 1fr;gap:8px}
+  .mv{font-size:18px}
+  .ml{font-size:10px}
+  .md{font-size:10px}
+
+  /* Grids collapse to single column */
+  .g2,.g3,.mg,.pg{grid-template-columns:1fr !important}
+
+  /* Tables scroll horizontally */
+  .card table{font-size:11px}
+  .card > table,.card > div > table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  th,td{padding:7px 8px;white-space:nowrap}
+
+  /* Chart height reduced */
+  .cw{height:180px}
+
+  /* Sidebar footer */
+  .sfoot{font-size:10px;padding:8px 12px}
+
+  /* Nav items bigger touch targets */
+  .ni{padding:12px 16px;font-size:14px}
+  .nav-sec{padding:12px 16px 4px}
+
+  /* Buttons full width on mobile forms */
+  .btn-row{flex-direction:column}
+  .btn-row .btn{width:100%;text-align:center;padding:10px}
+
+  /* Scorer form — single column */
+  .frow{grid-template-columns:1fr !important}
+
+  /* SHAP label shorter */
+  .sl{flex:0 0 110px;font-size:10px}
+
+  /* Pipeline steps */
+  .ps{flex-direction:column;gap:8px}
+
+  /* Alert detail grid */
+  .g2 > *{min-width:0}
+
+  /* Score big number */
+  .score-big{font-size:40px}
+
+  /* Phase cards — 2 col on mobile */
+  .pg{grid-template-columns:1fr 1fr !important}
+
+  /* Model grid — single col */
+  .mg{grid-template-columns:1fr !important}
+
+  /* Compliance table */
+  .ctbl td:nth-child(2){display:none} /* hide middle column on tiny screens */
+
+  /* Live feed text */
+  .lr{font-size:11px}
+  .lsc{width:28px;height:18px;font-size:10px}
+}
+
+@media(max-width:420px){
+  /* Very small phones */
+  .mrow{grid-template-columns:1fr 1fr}
+  .pg{grid-template-columns:1fr !important}
+  .topbar-title{font-size:13px;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+}
 </style>
 </head>
 <body>
@@ -172,13 +267,30 @@ input:focus,select:focus{outline:2px solid var(--mid);outline-offset:1px}
     <div class="ni" onclick="go('pipeline')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4h12M2 8h12M2 12h12"/></svg>Data Pipeline</div>
     <div class="ni" onclick="go('models')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg>ML Models</div>
     <div class="ni" onclick="go('scorer')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 12L6 8l3 3 5-6"/></svg>Live Scorer</div>
+    <div class="ni" onclick="go('monitoring')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11l4-4 3 3 4-5 3 2"/><rect x="1" y="1" width="14" height="14" rx="1"/></svg>Model Monitoring</div>
     <div class="nav-sec">Investigation</div>
     <div class="ni" onclick="go('alerts')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 2a5 5 0 015 5v3l1 2H2l1-2V7a5 5 0 015-5z"/><path d="M6 13a2 2 0 004 0"/></svg>Alert Queue<span class="nbadge" id="alert-count">—</span></div>
     <div class="ni" onclick="go('cases')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M5 3V2a1 1 0 011-1h4a1 1 0 011 1v1M5 8h6M5 11h4"/></svg>Case Management<span class="nbadge g" id="case-count">—</span></div>
+    <div class="ni" onclick="go('entity-graph')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="2"/><circle cx="2" cy="4" r="1.5"/><circle cx="14" cy="4" r="1.5"/><circle cx="2" cy="12" r="1.5"/><circle cx="14" cy="12" r="1.5"/><path d="M3.5 4.5L6 7M10 7l2.5-2.5M3.5 11.5L6 9M10 9l2.5 2.5"/></svg>Entity Graph</div>
+    <div class="ni" onclick="go('documents')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="1" width="12" height="14" rx="1"/><path d="M5 5h6M5 8h6M5 11h3"/><path d="M9 1v4h5"/></svg>Documents</div>
+    <div class="nav-sec">SAR &amp; Quality</div>
+    <div class="ni" onclick="go('sar')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="1" width="12" height="14" rx="1"/><path d="M5 5h6M5 8h6M5 11h4"/></svg>SAR Workbench</div>
+    <div class="ni" onclick="go('sar-editor')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 2h8l3 3v9H3z"/><path d="M11 2v3h3"/><path d="M5 7h6M5 10h6M5 13h4"/></svg>SAR Editor</div>
+    <div class="ni" onclick="go('features')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2h3v3H2zM6.5 2h3v3h-3zM11 2h3v3h-3zM2 6.5h3v3H2zM6.5 6.5h3v3h-3zM11 6.5h3v3h-3zM2 11h3v3H2zM6.5 11h3v3h-3z"/></svg>Feature Engineering</div>
+    <div class="nav-sec">Sanctions</div>
+    <div class="ni" onclick="go('sanctions')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 1l5 2v5c0 3-2.5 5.5-5 7C5.5 13.5 3 11 3 8V3z"/><path d="M5.5 8l2 2 3-3"/></svg>Sanctions Screening</div>
+    <div class="nav-sec">Analytics</div>
+    <div class="ni" onclick="go('analytics')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="8" width="3" height="7"/><rect x="6" y="4" width="3" height="11"/><rect x="11" y="1" width="3" height="14"/></svg>Executive Dashboard</div>
+    <div class="ni" onclick="go('trends')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 12l4-5 3 2 4-6 3 3"/><circle cx="5" cy="7" r="1.2"/><circle cx="8" cy="9" r="1.2"/><circle cx="12" cy="3" r="1.2"/></svg>Trend Analysis</div>
+    <div class="ni" onclick="go('geographic')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="6"/><path d="M2 8h12M8 2c-2 2-3 3.5-3 6s1 4 3 6M8 2c2 2 3 3.5 3 6s-1 4-3 6"/></svg>Geographic Risk</div>
+    <div class="ni" onclick="go('reports')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="1" width="12" height="14" rx="1"/><path d="M5 5h6M5 8h6M5 11h4"/><path d="M10 12l2 2"/></svg>Export Reports</div>
+    <div class="nav-sec">Compliance</div>
+    <div class="ni" onclick="go('compliance')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 1l5 2v5c0 3-2.5 5.5-5 7C5.5 13.5 3 11 3 8V3z"/></svg>Reg. Compliance</div>
     <div class="nav-sec">Deployment</div>
     <div class="ni" onclick="go('deployment')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 1l7 4v6l-7 4-7-4V5z"/></svg>Deployment</div>
-    <div class="ni" onclick="go('compliance')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 1l5 2v5c0 3-2.5 5.5-5 7C5.5 13.5 3 11 3 8V3z"/></svg>Compliance</div>
     <div class="nav-sec">System</div>
+    <div class="ni" onclick="go('users')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="6" cy="5" r="3"/><path d="M1 14c0-3 2.5-5 5-5s5 2 5 5"/><circle cx="12" cy="5" r="2"/><path d="M14 14c0-2-1-3.5-2-4"/></svg>User Management</div>
+    <div class="ni" onclick="go('notifications')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 2a5 5 0 015 5v3l1 2H2l1-2V7a5 5 0 015-5z"/><path d="M6 13a2 2 0 004 0"/><circle cx="11" cy="3" r="2" fill="#E24B4A" stroke="none"/></svg>Notifications</div>
     <div class="ni" onclick="go('audit')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3h10v10H3z"/><path d="M6 6h4M6 9h4M6 12h2"/></svg>Audit Log</div>
   </div>
   <div class="sfoot" id="api-status">Connecting to API...</div>
@@ -186,12 +298,16 @@ input:focus,select:focus{outline:2px solid var(--mid);outline-offset:1px}
 <!-- MAIN -->
 <div class="main">
   <div class="topbar">
+    <button class="hamburger" id="hamburger" onclick="toggleSidebar()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
     <div class="topbar-title" id="page-title">Dashboard</div>
     <div class="topbar-r">
-      <div class="live-pill" id="txn-rate"><span class="dot"></span>Live</div>
+      <div class="live-pill" id="txn-rate"><span class="dot"></span><span>Live</span></div>
       <span style="font-size:11px;color:var(--tx2)" id="clock"></span>
     </div>
   </div>
+  <div class="sidebar-overlay" id="sidebar-overlay" onclick="closeSidebar()"></div>
   <div class="content" id="content"><div style="padding:40px;text-align:center;color:var(--tx2)"><div class="spin"></div><div style="margin-top:10px">Loading…</div></div></div>
 </div>
 </div>
@@ -201,6 +317,16 @@ input:focus,select:focus{outline:2px solid var(--mid);outline-offset:1px}
 // API is always on the same host — works locally AND on Railway/cloud
 const API = window.location.origin;
 let _liveFeedTimer = null, _chartInst = {}, _detailAlertId = null;
+
+// ── Mobile sidebar controls ────────────────────────────────────────────────
+function toggleSidebar(){
+  document.querySelector('.sidebar').classList.toggle('open');
+  document.getElementById('sidebar-overlay').classList.toggle('open');
+}
+function closeSidebar(){
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('open');
+}
 
 // ── Utilities ────────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
@@ -220,7 +346,14 @@ async function api(path, opts={}) {
 setInterval(()=>{ $('clock').textContent=new Date().toLocaleTimeString(); },1000);
 
 // ── Router ───────────────────────────────────────────────────────────────────
-const TITLES = {dashboard:'Dashboard',pipeline:'Data Pipeline',models:'ML Models',scorer:'Live Scorer',alerts:'Alert Queue',cases:'Case Management',deployment:'Deployment',compliance:'Compliance',audit:'Audit Log'};
+const TITLES = {
+  dashboard:'Dashboard',
+  pipeline:'Data Pipeline',models:'ML Models',scorer:'Live Scorer',monitoring:'Model Monitoring',
+  alerts:'Alert Queue',cases:'Case Management','entity-graph':'Entity Graph',documents:'Documents',
+  sar:'SAR Workbench','sar-editor':'SAR Editor',features:'Feature Engineering',
+  sanctions:'Sanctions Screening',compliance:'Reg. Compliance',
+  deployment:'Deployment',notifications:'Notifications',audit:'Audit Log'
+};
 
 async function go(page) {
   if(_liveFeedTimer){clearInterval(_liveFeedTimer);_liveFeedTimer=null;}
@@ -944,18 +1077,14 @@ async function monitoring() {
 }
 
 // ── Patch sidebar & router ────────────────────────────────────────────────
-document.querySelector('.nav').insertAdjacentHTML('beforeend', `
-  <div class="nav-sec">SAR & Quality</div>
-  <div class="ni" onclick="go('sar')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="1" width="12" height="14" rx="1"/><path d="M5 5h6M5 8h6M5 11h4"/></svg>SAR Workbench</div>
-  <div class="ni" onclick="go('features')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2h3v3H2zM6.5 2h3v3h-3zM11 2h3v3h-3zM2 6.5h3v3H2zM6.5 6.5h3v3h-3zM11 6.5h3v3h-3zM2 11h3v3H2zM6.5 11h3v3h-3z"/></svg>Feature Engineering</div>
-  <div class="ni" onclick="go('monitoring')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11l4-4 3 3 4-5 3 2"/><rect x="1" y="1" width="14" height="14" rx="1"/></svg>Model Monitoring</div>
-`);
+// Nav items managed in static sidebar HTML above
 
 // Extend titles and pages maps
-Object.assign(TITLES, {sar:'SAR Workbench', features:'Feature Engineering', monitoring:'Model Monitoring'});
+// TITLES already complete above
 
 const _origGo = window.go;
 window.go = async function(page) {
+  if(window.innerWidth <= 768) closeSidebar();
   const extras = {sar: sarWorkbench, features: featureDetail, monitoring};
   if(extras[page]) {
     if(window._liveFeedTimer){clearInterval(window._liveFeedTimer);window._liveFeedTimer=null;}
@@ -971,4 +1100,1560 @@ window.go = async function(page) {
     await _origGo(page);
   }
 };
+</script>
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// INVESTIGATION & CASE MANAGEMENT — NEW MODULES
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── Helper ───────────────────────────────────────────────────────────────────
+const escHtml = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+// ── 1. SAR NARRATIVE EDITOR ───────────────────────────────────────────────────
+async function sarEditor(caseId) {
+  caseId = caseId || 'CAS-0411';
+  const draft = await api(`/api/sar/draft/${caseId}`) || {};
+  const cases = (await api('/api/cases') || {cases:[]}).cases;
+  const caseData = cases.find(c=>c.id===caseId) || {};
+
+  $('content').innerHTML = `
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+  <button class="btn" onclick="go('cases')">← Cases</button>
+  <span style="font-weight:500;font-size:14px">SAR Narrative Editor</span>
+  <span class="bp ${caseData.priority==='critical'?'bc':caseData.priority==='high'?'bh':'bm'}">${caseData.priority||'—'}</span>
+  <select id="sar-case-sel" style="margin-left:auto;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid var(--bdr);background:var(--bg);color:var(--tx)" onchange="sarEditor(this.value)">
+    ${cases.map(c=>`<option value="${c.id}" ${c.id===caseId?'selected':''}>${c.id} — ${c.entity}</option>`).join('')}
+  </select>
+</div>
+<div style="display:grid;grid-template-columns:1fr 280px;gap:14px">
+<div>
+<div class="card">
+  <div class="ch">
+    <span class="ct">Narrative — ${caseData.entity||caseId}</span>
+    <div style="display:flex;gap:6px;align-items:center">
+      <span id="word-count" style="font-size:11px;color:var(--tx2)">0 words</span>
+      <span id="save-status" style="font-size:11px;color:var(--green)"></span>
+    </div>
+  </div>
+  <div style="padding:8px">
+    <!-- Toolbar -->
+    <div style="display:flex;gap:4px;flex-wrap:wrap;padding:8px;border-bottom:1px solid var(--bdr);margin-bottom:8px">
+      ${[['B','bold','<b>'],['I','italic','<i>'],['U','underline','<u>']].map(([l,cmd,_])=>`<button onclick="document.execCommand('${cmd}')" class="btn" style="font-size:12px;padding:3px 9px;font-weight:${l==='B'?700:400};font-style:${l==='I'?'italic':'normal'};text-decoration:${l==='U'?'underline':'none'}">${l}</button>`).join('')}
+      <div style="width:1px;background:var(--bdr);margin:0 4px"></div>
+      ${['H2','H3'].map(h=>`<button onclick="document.execCommand('formatBlock',false,'${h.toLowerCase()}')" class="btn" style="font-size:11px;padding:3px 9px">${h}</button>`).join('')}
+      <button onclick="document.execCommand('insertUnorderedList')" class="btn" style="font-size:12px;padding:3px 9px">• List</button>
+      <div style="width:1px;background:var(--bdr);margin:0 4px"></div>
+      <button onclick="insertSARTemplate('${caseId}')" class="btn" style="font-size:11px;padding:3px 9px;background:var(--lblue);color:var(--navy)">Insert template</button>
+      <button onclick="clearEditor()" class="btn" style="font-size:11px;padding:3px 9px">Clear</button>
+    </div>
+    <div id="sar-editor"
+      contenteditable="true"
+      spellcheck="true"
+      style="min-height:420px;padding:16px;outline:none;font-size:13px;line-height:1.7;color:var(--tx);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif"
+      oninput="updateWordCount()"
+    >${draft.current ? draft.current.content : '<p style="color:var(--tx2)">Click "Insert template" to start with a pre-populated FinCEN 5-W narrative, or type your narrative here...</p>'}</div>
+  </div>
+</div>
+<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+  <button class="btn primary" onclick="saveDraft('${caseId}','draft')" style="padding:9px 18px">Save draft</button>
+  <button class="btn success" onclick="saveDraft('${caseId}','ready_for_review')" style="padding:9px 18px">Submit for review</button>
+  <button class="btn" onclick="saveDraft('${caseId}','approved')" style="padding:9px 18px">Mark approved</button>
+</div>
+</div>
+<!-- Sidebar -->
+<div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="ch"><span class="ct">Revision history</span></div>
+    <div id="revision-list" style="padding:10px;max-height:260px;overflow-y:auto">
+      ${draft.revisions && draft.revisions.length ? draft.revisions.map(r=>`
+      <div style="padding:8px;border-radius:6px;border:1px solid var(--bdr);margin-bottom:6px;cursor:pointer" onclick="loadRevision('${caseId}','${r.revision_id}')">
+        <div style="font-size:11px;font-weight:500;color:var(--tx)">${new Date(r.saved_at).toLocaleString()}</div>
+        <div style="font-size:10px;color:var(--tx2)">${r.saved_by} · ${r.word_count} words · <span class="bp ${r.status==='approved'?'bf':r.status==='ready_for_review'?'br':'bx'}" style="font-size:9px">${r.status}</span></div>
+      </div>`).join('') : '<div style="font-size:12px;color:var(--tx2);text-align:center;padding:16px">No revisions yet</div>'}
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="ch"><span class="ct">FinCEN checklist</span></div>
+    <div style="padding:10px" id="sar-checklist">
+      ${['WHO — subject identified','WHAT — activity described','WHERE — institution/channel','WHEN — dates specified','HOW — method of detection','WHY — no legitimate explanation','ML evidence cited','Statutory authority cited'].map(item=>`
+      <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:12px;cursor:pointer" onclick="toggleCheck(this)">
+        <div style="width:16px;height:16px;border-radius:4px;border:1.5px solid var(--bdr);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s" class="chk-box"></div>
+        <span>${item}</span>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="card">
+    <div class="ch"><span class="ct">Case info</span></div>
+    <div style="padding:10px;font-size:12px;line-height:1.8">
+      <div><span style="color:var(--tx2)">Entity:</span> <strong>${caseData.entity||'—'}</strong></div>
+      <div><span style="color:var(--tx2)">Typology:</span> ${caseData.typology||'—'}</div>
+      <div><span style="color:var(--tx2)">Officer:</span> ${caseData.officer||'Unassigned'}</div>
+      <div><span style="color:var(--tx2)">Status:</span> ${caseData.status||'—'}</div>
+    </div>
+  </div>
+</div>
+</div>`;
+  updateWordCount();
+}
+
+function updateWordCount() {
+  const editor = $('sar-editor');
+  if(!editor) return;
+  const text = editor.innerText || '';
+  const words = text.trim().split(/\s+/).filter(w=>w.length>0).length;
+  const wc = $('word-count');
+  if(wc) wc.textContent = `${words} words`;
+}
+
+function clearEditor() {
+  const ed = $('sar-editor');
+  if(ed) ed.innerHTML = '';
+  updateWordCount();
+}
+
+function toggleCheck(el) {
+  const box = el.querySelector('.chk-box');
+  const checked = box.dataset.checked === '1';
+  box.dataset.checked = checked ? '0' : '1';
+  box.style.background = checked ? '' : 'var(--green)';
+  box.style.borderColor = checked ? 'var(--bdr)' : 'var(--green)';
+  box.innerHTML = checked ? '' : '<svg width="10" height="10" viewBox="0 0 10 10"><path d="M2 5l2.5 2.5L8 3" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>';
+}
+
+async function insertSARTemplate(caseId) {
+  const cases = (await api('/api/cases')||{cases:[]}).cases;
+  const c = cases.find(x=>x.id===caseId)||{};
+  const alerts = (await api('/api/alerts')||{alerts:[]}).alerts.filter(a=>a.case_id===caseId);
+  const totalAmt = alerts.reduce((s,a)=>s+a.amount,0);
+  const template = `<h2>Suspicious Activity Report — Narrative</h2>
+<p><strong>Case Reference:</strong> ${caseId} &nbsp;|&nbsp; <strong>Date:</strong> ${new Date().toLocaleDateString()}</p>
+<h3>WHO</h3>
+<p>${c.entity||'[ENTITY NAME]'} (hereinafter "the Subject"), a customer of First National Compliance Bank, is the subject of this Suspicious Activity Report. The Subject maintains account(s) with this institution and has been identified as engaging in suspicious financial activity consistent with ${c.typology||'[TYPOLOGY]'}.</p>
+<h3>WHAT</h3>
+<p>The Subject conducted ${alerts.length||'[N]'} transaction(s) totalling $${totalAmt.toLocaleString()||'[AMOUNT]'} between [START DATE] and [END DATE]. These transactions were flagged by the institution's AI/ML-driven transaction monitoring system with an average risk score of [SCORE]/100.</p>
+<ul><li>Activity inconsistent with the Subject's known business purpose</li><li>Pattern consistent with ${c.typology||'[TYPOLOGY]'} as defined in FinCEN's 2021 National AML/CFT Priorities</li><li>[ADD SPECIFIC TRANSACTION DETAILS]</li></ul>
+<h3>WHERE</h3>
+<p>The suspicious activity was conducted through this institution's [CHANNEL] platform. [ADD GEOGRAPHIC DETAILS IF APPLICABLE]</p>
+<h3>WHEN</h3>
+<p>Suspicious activity first identified: [DATE]. Most recent suspicious transaction: [DATE]. Date SAR determination made: ${new Date().toLocaleDateString()}.</p>
+<h3>HOW</h3>
+<p>The institution's AI/ML Transaction Monitoring System flagged this activity through ensemble scoring across four detection models. The ensemble model produced risk scores of [SCORES]/100 across the flagged transactions. SHAP feature attribution identified [TOP FEATURES] as primary risk drivers.</p>
+<h3>WHY</h3>
+<p>Based on the totality of the evidence, this institution has determined that the Subject's activity has no reasonable explanation consistent with known legitimate business activity. This report is filed pursuant to 31 U.S.C. §5318(g) and 31 C.F.R. §1020.320.</p>`;
+  const ed = $('sar-editor');
+  if(ed) { ed.innerHTML = template; updateWordCount(); }
+}
+
+async function saveDraft(caseId, status) {
+  const ed = $('sar-editor');
+  if(!ed) return;
+  const content = ed.innerHTML;
+  const r = await api('/api/sar/draft/save', {method:'POST', body:JSON.stringify({
+    case_id: caseId, content, status, officer:'J. Mensah',
+    title: `SAR Draft — ${caseId}`
+  })});
+  const ss = $('save-status');
+  if(ss) {
+    ss.textContent = r?.ok ? `✓ Saved (rev ${r.revision_id})` : '✗ Save failed';
+    ss.style.color = r?.ok ? 'var(--green)' : 'var(--red)';
+    setTimeout(()=>{ if(ss) ss.textContent=''; }, 3000);
+  }
+  if(r?.ok) toast(`Draft saved — revision ${r.revision_id} · ${r.word_count} words`);
+}
+
+async function loadRevision(caseId, revId) {
+  const r = await api(`/api/sar/draft/${caseId}/revision?id=${revId}`);
+  if(r && r.content) {
+    const ed = $('sar-editor');
+    if(ed) { ed.innerHTML = r.content; updateWordCount(); }
+    toast(`Revision loaded: ${new Date(r.saved_at).toLocaleString()}`);
+  }
+}
+
+// ── 2. ENTITY RELATIONSHIP GRAPH ────────────────────────────────────────────
+async function entityGraph(caseId) {
+  caseId = caseId || 'CAS-0411';
+  const cases = (await api('/api/cases')||{cases:[]}).cases;
+  const caseData = cases.find(c=>c.id===caseId)||{};
+
+  $('content').innerHTML = `
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+  <button class="btn" onclick="go('cases')">← Cases</button>
+  <span style="font-weight:500">Entity Relationship Graph</span>
+  <select id="graph-case-sel" style="margin-left:auto;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid var(--bdr);background:var(--bg);color:var(--tx)" onchange="entityGraph(this.value)">
+    ${cases.map(c=>`<option value="${c.id}" ${c.id===caseId?'selected':''}>${c.id} — ${c.entity}</option>`).join('')}
+  </select>
+</div>
+<div style="display:grid;grid-template-columns:1fr 240px;gap:14px">
+<div class="card" style="overflow:hidden">
+  <div class="ch">
+    <span class="ct">${caseData.entity||caseId} — Counterparty Network</span>
+    <div style="display:flex;gap:6px">
+      <button class="btn" style="font-size:11px;padding:3px 9px" onclick="resetZoom()">Reset zoom</button>
+    </div>
+  </div>
+  <div style="position:relative;height:480px;background:var(--bg2);overflow:hidden" id="graph-container">
+    <canvas id="graph-canvas" style="width:100%;height:100%"></canvas>
+    <div id="graph-tooltip" style="position:absolute;background:var(--bg);border:1px solid var(--bdr);border-radius:8px;padding:10px 12px;font-size:12px;pointer-events:none;display:none;max-width:220px;box-shadow:0 4px 12px rgba(0,0,0,.15);z-index:10"></div>
+  </div>
+</div>
+<div>
+  <div class="card" style="margin-bottom:12px">
+    <div class="ch"><span class="ct">Graph legend</span></div>
+    <div style="padding:10px;font-size:12px">
+      ${[['#0F6E56','Institution'],['#E24B4A','High-risk entity'],['#D05538','Medium-risk entity'],['#1E50B4','Low-risk entity'],['#7832B4','Account']].map(([c,l])=>`<div style="display:flex;align-items:center;gap:7px;margin-bottom:7px"><div style="width:12px;height:12px;border-radius:50%;background:${c};flex-shrink:0"></div><span>${l}</span></div>`).join('')}
+      <div style="margin-top:10px;padding-top:8px;border-top:1px solid var(--bdr)">
+        <div style="display:flex;align-items:center;gap:7px;margin-bottom:5px"><div style="width:30px;height:2px;background:#E24B4A"></div><span>Suspicious link</span></div>
+        <div style="display:flex;align-items:center;gap:7px"><div style="width:30px;height:2px;background:#8892AA"></div><span>Normal link</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="card" id="graph-stats-card">
+    <div class="ch"><span class="ct">Network stats</span></div>
+    <div style="padding:10px;font-size:12px" id="graph-stats">Loading...</div>
+  </div>
+  <div class="card" style="margin-top:12px" id="node-detail-card" style="display:none">
+    <div class="ch"><span class="ct">Selected node</span></div>
+    <div style="padding:10px;font-size:12px" id="node-detail"></div>
+  </div>
+</div>
+</div>`;
+
+  const graphData = await api(`/api/cases/${caseId}/graph`);
+  if(!graphData || !graphData.nodes) {
+    $('graph-container').innerHTML = '<div style="padding:40px;text-align:center;color:var(--tx2)">No graph data available</div>';
+    return;
+  }
+
+  // Update stats
+  const s = graphData.stats || {};
+  $('graph-stats').innerHTML = [
+    ['Total nodes', s.node_count||0],
+    ['Total links', s.link_count||0],
+    ['High-risk nodes', s.high_risk_nodes||0],
+    ['Suspicious links', s.suspicious_links||0],
+    ['Total flow', '$'+(s.total_flow||0).toLocaleString()],
+  ].map(([l,v])=>`<div style="display:flex;justify-content:space-between;margin-bottom:6px"><span style="color:var(--tx2)">${l}</span><span style="font-weight:500">${v}</span></div>`).join('');
+
+  renderGraph(graphData);
+}
+
+function renderGraph(data) {
+  const canvas = $('graph-canvas');
+  if(!canvas) return;
+  const container = $('graph-container');
+  canvas.width  = container.offsetWidth  || 600;
+  canvas.height = container.offsetHeight || 480;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+
+  // Layout nodes in a force-directed-like circle arrangement
+  const nodes = data.nodes || [];
+  const links = data.links || [];
+  const cx = W/2, cy = H/2;
+
+  // Subject node at center, others in circles
+  const subject = nodes.find(n=>n.is_subject) || nodes[0];
+  const others   = nodes.filter(n=>n!==subject);
+  const r = Math.min(W,H)*0.34;
+
+  // Assign positions
+  const pos = {};
+  if(subject) pos[subject.id] = {x:cx, y:cy};
+  others.forEach((n,i)=>{
+    const angle = (i/Math.max(others.length,1))*Math.PI*2 - Math.PI/2;
+    const dist  = r * (n.type==='account'?0.65:1);
+    pos[n.id] = {x: cx+Math.cos(angle)*dist, y: cy+Math.sin(angle)*dist};
+  });
+
+  let scale=1, offsetX=0, offsetY=0, dragging=false, dragStart={x:0,y:0};
+  let hoveredNode=null, selectedNode=null;
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    ctx.save();
+    ctx.translate(offsetX,offsetY);
+    ctx.scale(scale,scale);
+
+    // Draw links
+    links.forEach(l=>{
+      const sp = pos[typeof l.source==='object'?l.source.id:l.source];
+      const tp = pos[typeof l.target==='object'?l.target.id:l.target];
+      if(!sp||!tp) return;
+      ctx.beginPath();
+      ctx.moveTo(sp.x,sp.y);
+      ctx.lineTo(tp.x,tp.y);
+      ctx.strokeStyle = l.type==='suspicious' ? '#E24B4A' : '#C0C8D8';
+      ctx.lineWidth   = l.type==='suspicious' ? 2.5 : 1.5;
+      ctx.globalAlpha = 0.7;
+      if(l.type==='suspicious') {
+        ctx.setLineDash([6,3]);
+      } else {
+        ctx.setLineDash([]);
+      }
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha=1;
+      // Amount label on link midpoint
+      if(l.label && l.amount>0) {
+        const mx=(sp.x+tp.x)/2, my=(sp.y+tp.y)/2;
+        ctx.fillStyle='var(--tx2)';
+        ctx.font='10px system-ui';
+        ctx.textAlign='center';
+        ctx.fillText(l.label,mx,my-4);
+      }
+    });
+
+    // Draw nodes
+    nodes.forEach(n=>{
+      const p = pos[n.id];
+      if(!p) return;
+      const size   = n.size || 20;
+      const isHov  = hoveredNode===n.id;
+      const isSel  = selectedNode===n.id;
+      const isSub  = n.is_subject;
+
+      // Outer ring for subject
+      if(isSub) {
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,size+8,0,Math.PI*2);
+        ctx.strokeStyle='#E24B4A';
+        ctx.lineWidth=2;
+        ctx.setLineDash([4,3]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // Node circle
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,size+(isHov||isSel?3:0),0,Math.PI*2);
+      ctx.fillStyle = n.color || '#1E50B4';
+      ctx.globalAlpha = n.opacity || 1;
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth   = isSel ? 3 : 1.5;
+      ctx.stroke();
+      ctx.globalAlpha=1;
+
+      // Risk badge
+      if(n.risk>=70) {
+        ctx.beginPath();
+        ctx.arc(p.x+size*0.7,p.y-size*0.7,7,0,Math.PI*2);
+        ctx.fillStyle='#E24B4A';
+        ctx.fill();
+        ctx.fillStyle='#fff';
+        ctx.font='bold 8px system-ui';
+        ctx.textAlign='center';
+        ctx.fillText('!',p.x+size*0.7,p.y-size*0.7+3);
+      }
+
+      // Label
+      const lines = n.label.split('\n');
+      ctx.fillStyle = window.matchMedia('(prefers-color-scheme:dark)').matches ? '#e8e8e4' : '#1a1a18';
+      ctx.font = `${isSub?'bold ':''}11px system-ui`;
+      ctx.textAlign='center';
+      lines.forEach((line,i)=>{
+        ctx.fillText(line, p.x, p.y+size+14+i*13);
+      });
+    });
+
+    ctx.restore();
+  }
+
+  // Mouse interactions
+  function getNodeAt(mx,my) {
+    const tx=(mx-offsetX)/scale, ty=(my-offsetY)/scale;
+    return nodes.find(n=>{
+      const p=pos[n.id];
+      if(!p) return false;
+      const d=Math.sqrt((tx-p.x)**2+(ty-p.y)**2);
+      return d<=(n.size||20)+4;
+    });
+  }
+
+  canvas.onmousemove = e => {
+    const rect=canvas.getBoundingClientRect();
+    const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    if(dragging){
+      offsetX+=mx-dragStart.x; offsetY+=my-dragStart.y;
+      dragStart={x:mx,y:my};
+      draw(); return;
+    }
+    const node=getNodeAt(mx,my);
+    hoveredNode = node?.id || null;
+    canvas.style.cursor = node?'pointer':'grab';
+    const tip=$('graph-tooltip');
+    if(node&&tip){
+      tip.style.display='block';
+      tip.style.left=(mx+14)+'px'; tip.style.top=(my-10)+'px';
+      tip.innerHTML=`<div style="font-weight:500;margin-bottom:4px">${escHtml(node.label)}</div>
+        <div style="color:var(--tx2)">Type: ${node.type}</div>
+        <div style="color:${node.risk>=70?'var(--red)':'var(--tx2)'}">Risk: ${node.risk}/100</div>
+        ${node.is_subject?'<div style="color:var(--red);margin-top:4px">⚠ Subject of investigation</div>':''}
+        ${node.is_shell?'<div style="color:var(--orange)">⚠ Shell company indicator</div>':''}`;
+    } else if(tip){
+      tip.style.display='none';
+    }
+    draw();
+  };
+  canvas.onmousedown = e => {
+    dragging=true;
+    const rect=canvas.getBoundingClientRect();
+    dragStart={x:e.clientX-rect.left,y:e.clientY-rect.top};
+    canvas.style.cursor='grabbing';
+  };
+  canvas.onmouseup = e => {
+    dragging=false;
+    canvas.style.cursor='grab';
+    const rect=canvas.getBoundingClientRect();
+    const node=getNodeAt(e.clientX-rect.left,e.clientY-rect.top);
+    if(node){
+      selectedNode=node.id;
+      const nd=$('node-detail');
+      if(nd){
+        nd.innerHTML=`<div style="font-weight:500;margin-bottom:8px">${escHtml(node.label)}</div>
+          <div style="font-size:11px;line-height:1.8">
+            <div><span style="color:var(--tx2)">Type:</span> ${node.type}</div>
+            <div><span style="color:var(--tx2)">Risk score:</span> <span style="color:${node.risk>=70?'var(--red)':'var(--tx)'};font-weight:600">${node.risk}/100</span></div>
+            ${node.is_subject?'<div style="color:var(--red);margin-top:6px;font-weight:500">⚠ Primary subject</div>':''}
+            ${node.is_shell?'<div style="color:var(--orange)">⚠ Shell company indicators</div>':''}
+            ${node.is_counterparty?'<div style="color:var(--mid)">Counterparty entity</div>':''}
+          </div>`;
+        const card=$('node-detail-card');
+        if(card) card.style.display='block';
+      }
+      draw();
+    }
+  };
+  canvas.onwheel = e => {
+    e.preventDefault();
+    scale = Math.max(0.4, Math.min(3, scale*(e.deltaY<0?1.1:0.9)));
+    draw();
+  };
+  window.resetZoom = ()=>{ scale=1;offsetX=0;offsetY=0;draw(); };
+  draw();
+}
+
+// ── 3. DOCUMENT ATTACHMENTS ──────────────────────────────────────────────────
+async function caseDocuments(caseId) {
+  caseId = caseId || 'CAS-0411';
+  const cases = (await api('/api/cases')||{cases:[]}).cases;
+  const docs  = (await api(`/api/cases/${caseId}/documents`)||{documents:[]}).documents;
+
+  $('content').innerHTML = `
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap">
+  <button class="btn" onclick="go('cases')">← Cases</button>
+  <span style="font-weight:500">Document Attachments</span>
+  <select id="doc-case-sel" style="margin-left:auto;font-size:12px;padding:5px 8px;border-radius:6px;border:1px solid var(--bdr);background:var(--bg);color:var(--tx)" onchange="caseDocuments(this.value)">
+    ${cases.map(c=>`<option value="${c.id}" ${c.id===caseId?'selected':''}>${c.id} — ${c.entity}</option>`).join('')}
+  </select>
+</div>
+<div class="g2">
+<div>
+<div class="card" style="margin-bottom:14px">
+  <div class="ch"><span class="ct">Upload document</span></div>
+  <div class="cb">
+    <div id="drop-zone" style="border:2px dashed var(--bdr);border-radius:8px;padding:30px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:12px"
+      ondragover="event.preventDefault();this.style.borderColor='var(--mid)'"
+      ondragleave="this.style.borderColor='var(--bdr)'"
+      ondrop="handleFileDrop(event,'${caseId}')"
+      onclick="$('file-input').click()">
+      <div style="font-size:28px;margin-bottom:8px">📎</div>
+      <div style="font-size:13px;font-weight:500;color:var(--tx)">Drop files here or click to browse</div>
+      <div style="font-size:11px;color:var(--tx2);margin-top:4px">PDF, Word, Excel, PNG, JPG — max 5MB each</div>
+    </div>
+    <input type="file" id="file-input" style="display:none" multiple
+      accept=".pdf,.doc,.docx,.xls,.xlsx,.png,.jpg,.jpeg,.txt,.csv"
+      onchange="handleFileSelect(event,'${caseId}')">
+    <div class="frow" style="grid-template-columns:1fr">
+      <div><label class="flabel">Description (optional)</label>
+        <input type="text" id="doc-desc" placeholder="e.g. Bank statement showing suspicious transactions">
+      </div>
+    </div>
+    <div id="upload-progress" style="display:none;margin-top:8px">
+      <div style="font-size:12px;color:var(--tx2);margin-bottom:4px" id="upload-status">Uploading...</div>
+      <div style="height:4px;background:var(--g1);border-radius:2px"><div id="upload-bar" style="height:100%;border-radius:2px;background:var(--mid);width:0%;transition:width .3s"></div></div>
+    </div>
+  </div>
+</div>
+</div>
+<div>
+<div class="card">
+  <div class="ch"><span class="ct">Attached documents (${docs.length})</span></div>
+  <div id="doc-list" style="padding:0">
+    ${docs.length ? renderDocList(docs, caseId) : '<div style="padding:30px;text-align:center;color:var(--tx2);font-size:13px">No documents attached yet</div>'}
+  </div>
+</div>
+</div>
+</div>`;
+}
+
+function renderDocList(docs, caseId) {
+  const icons = {'Bank Statement':'🏦','KYC/Identity':'🪪','Trade Document':'📦',
+    'SAR Document':'📋','Legal Document':'⚖️','Screening Result':'🔍','Supporting Evidence':'📎'};
+  return docs.map(d=>`
+  <div style="display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--bdr)">
+    <div style="font-size:22px;flex-shrink:0">${icons[d.category]||'📎'}</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:13px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escHtml(d.filename)}</div>
+      <div style="font-size:11px;color:var(--tx2)">${d.category} · ${d.size_kb}KB · ${d.uploaded_by} · ${new Date(d.uploaded_at).toLocaleDateString()}</div>
+      ${d.description?`<div style="font-size:11px;color:var(--tx2);margin-top:2px">${escHtml(d.description)}</div>`:''}
+    </div>
+    <div style="display:flex;gap:6px;flex-shrink:0">
+      <a href="${API}/api/documents/${d.doc_id}/download" target="_blank" class="btn" style="font-size:11px;padding:3px 9px">↓</a>
+      <button class="btn danger" onclick="deleteDoc('${caseId}','${d.doc_id}')" style="font-size:11px;padding:3px 9px">✕</button>
+    </div>
+  </div>`).join('');
+}
+
+async function handleFileDrop(e, caseId) {
+  e.preventDefault();
+  $('drop-zone').style.borderColor='var(--bdr)';
+  const files = Array.from(e.dataTransfer.files);
+  for(const f of files) await uploadFile(f, caseId);
+}
+async function handleFileSelect(e, caseId) {
+  const files = Array.from(e.target.files);
+  for(const f of files) await uploadFile(f, caseId);
+}
+
+async function uploadFile(file, caseId) {
+  const prog = $('upload-progress');
+  const bar  = $('upload-bar');
+  const stat = $('upload-status');
+  if(prog) prog.style.display='block';
+  if(stat) stat.textContent=`Reading ${file.name}...`;
+  if(bar)  bar.style.width='30%';
+
+  const reader = new FileReader();
+  reader.onload = async e2 => {
+    if(bar) bar.style.width='60%';
+    if(stat) stat.textContent=`Uploading ${file.name}...`;
+    const b64 = e2.target.result.split(',')[1];
+    const r = await api('/api/documents/upload', {method:'POST', body:JSON.stringify({
+      case_id:      caseId,
+      filename:     file.name,
+      content_type: file.type||'application/octet-stream',
+      data:         b64,
+      officer:      'J. Mensah',
+      description:  ($('doc-desc')||{}).value||'',
+    })});
+    if(bar)  bar.style.width='100%';
+    if(r?.ok) {
+      toast(`✓ ${file.name} uploaded (${r.doc?.size_kb}KB)`);
+      setTimeout(()=>caseDocuments(caseId), 500);
+    } else {
+      toast(`✗ Upload failed: ${r?.error||'Unknown error'}`);
+    }
+    if(prog) setTimeout(()=>{ prog.style.display='none'; if(bar) bar.style.width='0%'; },1500);
+  };
+  reader.readAsDataURL(file);
+}
+
+async function deleteDoc(caseId, docId) {
+  if(!confirm('Delete this document?')) return;
+  await api(`/api/documents/${docId}/delete`, {method:'POST', body:JSON.stringify({doc_id:docId,officer:'J. Mensah'})});
+  toast('Document deleted'); caseDocuments(caseId);
+}
+
+// ── 4. SANCTIONS SCREENING ───────────────────────────────────────────────────
+async function sanctionsScreen() {
+  const stats = await api('/api/sanctions/stats') || {};
+  $('content').innerHTML = `
+<div class="mrow">
+  <div class="mc"><div class="ml">SDN entries</div><div class="mv">${stats.total_entries||0}</div><div class="md">${stats.individuals||0} individuals · ${stats.entities||0} entities</div></div>
+  <div class="mc"><div class="ml">Programs covered</div><div class="mv">${stats.programs_covered||0}</div><div class="md">OFAC / UN / EU / HMT</div></div>
+  <div class="mc"><div class="ml">High-risk jurisdictions</div><div class="mv">${stats.high_risk_jurisdictions||0}</div><div class="md">FATF grey + black list</div></div>
+  <div class="mc"><div class="ml">List version</div><div class="mv" style="font-size:14px">2024-Q4</div><div class="md">Representative seed data</div></div>
+</div>
+<div class="g2">
+<div>
+<div class="card" style="margin-bottom:14px">
+  <div class="ch"><span class="ct">Single entity screen</span></div>
+  <div class="cb">
+    <div class="frow">
+      <div><label class="flabel">Entity name</label>
+        <input id="scr-name" type="text" placeholder="e.g. Nexus Trading LLC" style="font-size:14px">
+      </div>
+      <div><label class="flabel">Country (optional)</label>
+        <input id="scr-country" type="text" placeholder="e.g. Panama, Russia">
+      </div>
+    </div>
+    <button class="btn primary" onclick="runSanctionsScreen()" style="width:100%;padding:10px;margin-top:4px">Screen against SDN list →</button>
+  </div>
+</div>
+<div class="card">
+  <div class="ch"><span class="ct">Batch screen — case entities</span></div>
+  <div class="cb">
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:10px">Screen all entities from current open cases at once.</div>
+    <button class="btn" onclick="runBatchScreen()" style="width:100%;padding:9px">Screen all case entities →</button>
+  </div>
+</div>
+</div>
+<div>
+  <div class="card" id="screen-result">
+    <div class="ch"><span class="ct">Screening result</span></div>
+    <div style="padding:24px;text-align:center;color:var(--tx2);font-size:13px">Enter an entity name and click Screen</div>
+  </div>
+</div>
+</div>
+<div class="card" style="margin-top:14px">
+  <div class="ch"><span class="ct">Top OFAC programs</span></div>
+  <div class="cb"><div class="cw" style="height:160px"><canvas id="progChart"></canvas></div></div>
+</div>`;
+
+  if(stats.top_programs) {
+    const labels = stats.top_programs.map(([k])=>k);
+    const vals   = stats.top_programs.map(([,v])=>v);
+    if(window._chartInst) { Object.values(window._chartInst).forEach(c=>{try{c.destroy()}catch(e){}}); window._chartInst={}; }
+    const Chart = window.Chart;
+    if(Chart && $('progChart')) {
+      window._chartInst.prog = new Chart($('progChart'), {
+        type:'bar', data:{labels, datasets:[{data:vals,backgroundColor:'#1E50B4',borderWidth:0,borderRadius:3}]},
+        options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+          scales:{x:{ticks:{font:{size:9}},grid:{display:false}},y:{ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}}}}
+      });
+    }
+  }
+}
+
+async function runSanctionsScreen() {
+  const name    = ($('scr-name')||{}).value?.trim();
+  const country = ($('scr-country')||{}).value?.trim();
+  if(!name){toast('Enter an entity name');return;}
+  const res = $('screen-result');
+  if(res) res.innerHTML='<div class="ch"><span class="ct">Screening result</span></div><div style="padding:20px;text-align:center"><div class="spin"></div></div>';
+  const r = await api('/api/sanctions/screen', {method:'POST', body:JSON.stringify({name,country,officer:'J. Mensah'})});
+  if(!r){toast('Screening failed'); return;}
+  renderScreenResult(r);
+}
+
+async function runBatchScreen() {
+  const cases = (await api('/api/cases')||{cases:[]}).cases;
+  const entities = cases.map(c=>({name:c.entity,country:''}));
+  const r = await api('/api/sanctions/batch', {method:'POST', body:JSON.stringify({entities})});
+  if(!r) return;
+  toast(`Batch complete: ${r.hits} hits out of ${r.total} entities`);
+  const res = $('screen-result');
+  if(res) {
+    res.innerHTML = `<div class="ch"><span class="ct">Batch results — ${r.total} entities</span></div><div style="padding:0">
+      <table><thead><tr><th>Entity</th><th>Status</th><th>Risk</th><th>Matches</th></tr></thead><tbody>
+      ${(r.results||[]).map((result,i)=>`<tr>
+        <td style="font-weight:500">${escHtml(entities[i]?.name||'')}</td>
+        <td><span class="bp ${result.status==='HIT'?'bc':result.status==='POTENTIAL_MATCH'?'bh':result.status==='CLEAR'?'bf':'bm'}">${result.status}</span></td>
+        <td><span style="color:${result.risk_level==='critical'?'var(--red)':result.risk_level==='high'?'var(--orange)':'var(--green)'};font-weight:600">${result.risk_level}</span></td>
+        <td>${result.confirmed_hits} confirmed · ${result.potential_matches} potential</td>
+      </tr>`).join('')}
+      </tbody></table></div>`;
+  }
+}
+
+function renderScreenResult(r) {
+  const res = $('screen-result');
+  if(!res) return;
+  const statusColor = r.status==='HIT'?'var(--red)':r.status==='POTENTIAL_MATCH'?'var(--orange)':r.status==='CLEAR'?'var(--green)':'var(--mid)';
+  const statusBg    = r.status==='HIT'?'var(--lred)':r.status==='POTENTIAL_MATCH'?'var(--lorange)':r.status==='CLEAR'?'var(--lgreen)':'var(--lblue)';
+  res.innerHTML = `
+  <div class="ch"><span class="ct">Result: ${escHtml(r.query)}</span><span style="font-size:11px;color:var(--tx2)">${new Date(r.screened_at).toLocaleTimeString()}</span></div>
+  <div style="padding:14px">
+    <div style="padding:14px;border-radius:8px;background:${statusBg};border:1px solid ${statusColor};margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
+      <div>
+        <div style="font-size:18px;font-weight:600;color:${statusColor}">${r.status.replace('_',' ')}</div>
+        <div style="font-size:12px;color:var(--tx2);margin-top:2px">${r.confirmed_hits} confirmed · ${r.potential_matches} potential · ${r.total_checked} entries checked</div>
+      </div>
+      <div style="font-size:28px">${r.status==='HIT'?'🚨':r.status==='POTENTIAL_MATCH'?'⚠️':r.status==='CLEAR'?'✅':'ℹ️'}</div>
+    </div>
+    ${r.matches?.length ? `
+    <div style="font-size:11px;font-weight:500;color:var(--tx2);margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">SDN Matches</div>
+    ${r.matches.map(m=>`
+    <div style="padding:10px;border-radius:6px;border:1px solid ${m.hit_type==='CONFIRMED_HIT'?'var(--red)':'var(--bdr)'};margin-bottom:8px;background:${m.hit_type==='CONFIRMED_HIT'?'var(--lred)':'var(--bg2)'}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div style="font-weight:600;font-size:13px">${escHtml(m.sdn_name)}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span style="font-size:18px;font-weight:700;color:${m.match_score>=80?'var(--red)':'var(--orange)'}">${m.match_score}%</span>
+          <span class="bp ${m.hit_type==='CONFIRMED_HIT'?'bc':'bh'}" style="font-size:10px">${m.hit_type.replace('_',' ')}</span>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--tx2);line-height:1.6">
+        <div><strong>Matched on:</strong> ${escHtml(m.match_on)}</div>
+        <div><strong>Country:</strong> ${m.country} · <strong>Type:</strong> ${m.entity_type}</div>
+        <div><strong>Programs:</strong> ${m.programs.join(', ')}</div>
+        <div><strong>Reason:</strong> ${escHtml(m.reason)}</div>
+        <div><strong>Added:</strong> ${m.date_added}</div>
+      </div>
+    </div>`).join('')}` : ''}
+    ${r.jurisdiction_hits?.length ? `
+    <div style="font-size:11px;font-weight:500;color:var(--tx2);margin-top:10px;margin-bottom:8px;text-transform:uppercase;letter-spacing:.4px">Jurisdiction Risk</div>
+    ${r.jurisdiction_hits.map(j=>`
+    <div style="padding:8px 10px;border-radius:6px;border:1px solid var(--bdr);margin-bottom:6px;background:var(--bg2);font-size:12px">
+      <strong>${j.jurisdiction}</strong> — <span style="color:${j.risk_level==='critical'?'var(--red)':j.risk_level==='high'?'var(--orange)':'var(--mid)'};font-weight:600">${j.risk_level.toUpperCase()}</span>
+      · FATF: ${j.fatf_status} ${j.programs.length?'· Programs: '+j.programs.join(', '):''}
+    </div>`).join('')}` : ''}
+    ${r.action_required ? `<div style="margin-top:12px;padding:10px;background:var(--lred);border-radius:6px;font-size:12px;color:var(--red);font-weight:500">⚠ Action required — freeze account and escalate to Compliance Officer immediately</div>` : ''}
+  </div>`;
+}
+
+// ── 5. NOTIFICATIONS ─────────────────────────────────────────────────────────
+async function notifications() {
+  const data  = await api('/api/notifications') || {};
+  const notifs = data.notifications || [];
+  const stats  = data.stats || {};
+
+  $('content').innerHTML = `
+<div class="mrow">
+  <div class="mc"><div class="ml">Total notifications</div><div class="mv">${stats.total||0}</div><div class="md">All channels</div></div>
+  <div class="mc"><div class="ml">Sanctions hits</div><div class="mv">${(stats.by_type||{}).SANCTIONS_HIT||0}</div><div class="md r">Require action</div></div>
+  <div class="mc"><div class="ml">Alert notifications</div><div class="mv">${(stats.by_type||{}).NEW_ALERT||0}</div><div class="md">Critical + high</div></div>
+  <div class="mc"><div class="ml">Email delivery</div><div class="mv" style="font-size:14px">${stats.smtp_enabled?'Live':'Simulated'}</div><div class="md">${stats.smtp_enabled?'SMTP configured':'Configure below'}</div></div>
+</div>
+<div class="g2">
+<div>
+<div class="card" style="margin-bottom:14px">
+  <div class="ch"><span class="ct">Email configuration</span></div>
+  <div class="cb">
+    <div class="frow">
+      <div><label class="flabel">SMTP host</label><input id="smtp-host" type="text" placeholder="smtp.gmail.com or smtp.sendgrid.net"></div>
+      <div><label class="flabel">Port</label><input id="smtp-port" type="number" value="587"></div>
+      <div><label class="flabel">Username / API key</label><input id="smtp-user" type="text" placeholder="your@email.com"></div>
+      <div><label class="flabel">Password / API key</label><input id="smtp-pass" type="password" placeholder="••••••••"></div>
+    </div>
+    <div><label class="flabel">Recipients (comma-separated)</label>
+      <input id="smtp-rcpts" type="text" placeholder="aml@bank.com, compliance@bank.com" style="margin-bottom:10px">
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn primary" onclick="saveEmailConfig()" style="padding:8px 16px">Save configuration</button>
+      <button class="btn" onclick="sendTestEmail()" style="padding:8px 16px">Send test email</button>
+    </div>
+    <div style="margin-top:10px;padding:10px;background:var(--bg2);border-radius:6px;font-size:11px;color:var(--tx2);line-height:1.6">
+      Notifications are sent automatically for: critical/high alerts, sanctions hits, SAR deadline warnings (7 days remaining), and case status changes. Configure SMTP to receive real emails, or leave blank to use simulated delivery (notifications stored in-app only).
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="ch"><span class="ct">Send manual notification</span></div>
+  <div class="cb">
+    <div><label class="flabel">Subject</label><input id="notif-subj" type="text" placeholder="Notification subject" style="margin-bottom:8px"></div>
+    <div><label class="flabel">Message</label>
+      <textarea id="notif-body" style="width:100%;height:80px;padding:8px;border-radius:6px;border:1px solid var(--bdr);background:var(--bg);color:var(--tx);font-size:13px;resize:vertical" placeholder="Notification message..."></textarea>
+    </div>
+    <button class="btn primary" onclick="sendManualNotif()" style="width:100%;padding:9px;margin-top:8px">Send notification</button>
+  </div>
+</div>
+</div>
+<div>
+<div class="card">
+  <div class="ch"><span class="ct">Notification log</span><span style="font-size:11px;color:var(--tx2)">${notifs.length} entries</span></div>
+  <div style="max-height:500px;overflow-y:auto">
+    ${notifs.length ? notifs.map(n=>`
+    <div style="padding:12px;border-bottom:1px solid var(--bdr)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:4px">
+        <div style="font-size:12px;font-weight:500">${escHtml(n.subject)}</div>
+        <span class="bp ${n.event_type==='SANCTIONS_HIT'?'bc':n.event_type==='NEW_ALERT'?'bh':n.event_type==='SAR_DEADLINE'?'bm':'bo'}" style="font-size:9px;white-space:nowrap">${n.event_type.replace(/_/g,' ')}</span>
+      </div>
+      <div style="font-size:11px;color:var(--tx2)">${new Date(n.sent_at).toLocaleString()} · ${n.delivered?'✓ Delivered':'✗ Failed'}${n.note?` · ${n.note}`:''}</div>
+    </div>`).join('') : '<div style="padding:30px;text-align:center;color:var(--tx2);font-size:13px">No notifications yet</div>'}
+  </div>
+</div>
+</div>
+</div>`;
+}
+
+async function saveEmailConfig() {
+  const r = await api('/api/notifications/configure', {method:'POST', body:JSON.stringify({
+    smtp_host: ($('smtp-host')||{}).value||'',
+    smtp_port: parseInt(($('smtp-port')||{}).value||587),
+    username:  ($('smtp-user')||{}).value||'',
+    password:  ($('smtp-pass')||{}).value||'',
+    recipients:($('smtp-rcpts')||{}).value?.split(',').map(s=>s.trim()).filter(Boolean)||[],
+    enabled:   !!($('smtp-host')||{}).value,
+  })});
+  toast(r?.ok ? '✓ Email configuration saved' : '✗ Save failed');
+}
+
+async function sendTestEmail() {
+  const rcpts = ($('smtp-rcpts')||{}).value?.split(',').map(s=>s.trim()).filter(Boolean)||[];
+  const r = await api('/api/notifications/test', {method:'POST', body:JSON.stringify({recipients:rcpts})});
+  toast(r?.ok ? '✓ Test notification sent' : '✗ Failed');
+}
+
+async function sendManualNotif() {
+  const subj = ($('notif-subj')||{}).value?.trim();
+  const body = ($('notif-body')||{}).value?.trim();
+  if(!subj||!body){toast('Enter subject and message');return;}
+  const r = await api('/api/notifications/send', {method:'POST', body:JSON.stringify({
+    event_type:'MANUAL', subject:subj, body, data:{}
+  })});
+  toast(r?.ok?'✓ Notification sent':'✗ Failed');
+  if(r?.ok) setTimeout(()=>notifications(),500);
+}
+
+// ── Register new pages in the router ─────────────────────────────────────────
+// Nav items managed in static sidebar HTML above
+
+const _prevGo = window.go;
+const _extraPages = {
+  'sar-editor':   ()=>sarEditor(),
+  'entity-graph': ()=>entityGraph(),
+  'documents':    ()=>caseDocuments(),
+  'sanctions':    ()=>sanctionsScreen(),
+  'notifications':()=>notifications(),
+};
+const _extraTitles = {
+  'sar-editor':'SAR Editor','entity-graph':'Entity Graph',
+  'documents':'Documents','sanctions':'Sanctions Screening','notifications':'Notifications',
+};
+window.go = async function(page) {
+  if(_extraPages[page]) {
+    if(window._liveFeedTimer){clearInterval(window._liveFeedTimer);window._liveFeedTimer=null;}
+    Object.values(window._chartInst||{}).forEach(c=>{try{c.destroy()}catch(e){}});
+    window._chartInst={};
+    if(window.innerWidth<=768) closeSidebar();
+    document.querySelectorAll('.ni').forEach(el=>{
+      el.classList.toggle('active', el.getAttribute('onclick')===`go('${page}')`);
+    });
+    const pt = $('page-title');
+    if(pt) pt.textContent = _extraTitles[page]||page;
+    $('content').innerHTML='<div style="padding:40px;text-align:center;color:var(--tx2)"><div class="spin"></div></div>';
+    await _extraPages[page]();
+  } else {
+    await _prevGo(page);
+  }
+};
+</script>
+<script>
+// ═══════════════════════════════════════════════════════════════════════════
+// AUTH SYSTEM + ANALYTICS & REPORTING + USER MANAGEMENT
+// ═══════════════════════════════════════════════════════════════════════════
+
+// ── Auth state ────────────────────────────────────────────────────────────────
+let _authToken = localStorage.getItem('aml_token') || null;
+let _currentUser = null;
+let _userPerms = new Set();
+
+async function initAuth() {
+  if (!_authToken) { showLogin(); return; }
+  const r = await api('/api/auth/me');
+  if (r && r.user) {
+    _currentUser = r.user;
+    _userPerms   = new Set(r.permissions || []);
+    updateUserBadge();
+    // Log page visit
+    await api('/api/auth/log_action', {method:'POST',
+      body: JSON.stringify({action:'APP_OPEN', detail:'Session restored'})});
+  } else {
+    _authToken = null;
+    localStorage.removeItem('aml_token');
+    showLogin();
+  }
+}
+
+function updateUserBadge() {
+  const sf = $('api-status');
+  if (!sf || !_currentUser) return;
+  const roleColors = {admin:'#E24B4A', supervisor:'#1E50B4', analyst:'#0F6E56', readonly:'#8892AA'};
+  sf.innerHTML = `<div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+    <div style="width:22px;height:22px;border-radius:50%;background:${_currentUser.color};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff">${_currentUser.avatar}</div>
+    <div><div style="color:#fff;font-size:11px;font-weight:500">${_currentUser.name}</div>
+    <div style="font-size:9px;padding:0 4px;border-radius:3px;background:${roleColors[_currentUser.role]||'#555'};color:#fff;display:inline-block">${_currentUser.role.toUpperCase()}</div></div>
+  </div>
+  <div style="font-size:9px;color:rgba(255,255,255,.35);cursor:pointer" onclick="doLogout()">Sign out</div>`;
+}
+
+async function doLogout() {
+  await api('/api/auth/logout', {method:'POST', body:'{}'});
+  _authToken = null; _currentUser = null; _userPerms = new Set();
+  localStorage.removeItem('aml_token');
+  showLogin();
+}
+
+// ── Login page ────────────────────────────────────────────────────────────────
+function showLogin() {
+  document.querySelector('.app').style.display = 'none';
+  let loginDiv = $('login-page');
+  if (!loginDiv) {
+    loginDiv = document.createElement('div');
+    loginDiv.id = 'login-page';
+    document.body.appendChild(loginDiv);
+  }
+  loginDiv.style.display = 'flex';
+  loginDiv.innerHTML = `
+<style>
+#login-page{position:fixed;inset:0;background:linear-gradient(135deg,#0F285A 0%,#1E50B4 100%);display:flex;align-items:center;justify-content:center;z-index:9999;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif}
+.login-card{background:#fff;border-radius:16px;padding:40px 36px;width:100%;max-width:400px;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo-title{font-size:20px;font-weight:700;color:#0F285A;margin-top:10px}
+.login-logo-sub{font-size:12px;color:#8892AA;margin-top:2px}
+.login-field{margin-bottom:16px}
+.login-label{font-size:11px;font-weight:500;color:#5a5a56;display:block;margin-bottom:5px;text-transform:uppercase;letter-spacing:.4px}
+.login-input{width:100%;padding:10px 12px;border:1.5px solid #e0e0dc;border-radius:8px;font-size:14px;color:#1a1a18;outline:none;transition:border-color .15s;background:#fff}
+.login-input:focus{border-color:#1E50B4}
+.login-btn{width:100%;padding:12px;background:#0F285A;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-top:8px;transition:background .15s}
+.login-btn:hover{background:#162E6A}
+.login-error{color:#A32D2D;font-size:12px;background:#FCEAEA;padding:8px 12px;border-radius:6px;margin-bottom:12px;display:none}
+.demo-creds{background:#EEF5FF;border-radius:8px;padding:12px;margin-top:16px;font-size:11px}
+.demo-creds-title{font-weight:600;color:#1E50B4;margin-bottom:6px}
+.demo-row{display:flex;justify-content:space-between;color:#4A5268;margin-bottom:3px;cursor:pointer}
+.demo-row:hover{color:#1E50B4}
+</style>
+<div class="login-card">
+  <div class="login-logo">
+    <div style="width:52px;height:52px;background:#0F285A;border-radius:12px;display:inline-flex;align-items:center;justify-content:center">
+      <svg width="28" height="28" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="1.4"><path d="M8 1l5 2v5c0 3-2.5 5.5-5 7C5.5 13.5 3 11 3 8V3z"/><path d="M5.5 8l2 2 3-3"/></svg>
+    </div>
+    <div class="login-logo-title">AML-TMS Platform</div>
+    <div class="login-logo-sub">AI/ML Transaction Monitoring System</div>
+  </div>
+  <div class="login-error" id="login-error"></div>
+  <div id="login-form">
+    <div class="login-field">
+      <label class="login-label">Email address</label>
+      <input class="login-input" type="email" id="login-email" placeholder="you@institution.com" autocomplete="email">
+    </div>
+    <div class="login-field">
+      <label class="login-label">Password</label>
+      <input class="login-input" type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password"
+        onkeydown="if(event.key==='Enter')submitLogin()">
+    </div>
+    <button class="login-btn" onclick="submitLogin()" id="login-btn">Sign in →</button>
+  </div>
+  <div id="tfa-form" style="display:none">
+    <div style="text-align:center;margin-bottom:16px">
+      <div style="font-size:14px;font-weight:600;color:#0F285A">Two-factor authentication</div>
+      <div style="font-size:12px;color:#8892AA;margin-top:4px">Enter the 6-digit code from your authenticator app</div>
+      <div style="font-size:11px;color:#1EA064;margin-top:4px">Demo mode: enter any 6 digits</div>
+    </div>
+    <div class="login-field">
+      <label class="login-label">Authentication code</label>
+      <input class="login-input" type="text" id="tfa-code" placeholder="000000" maxlength="6"
+        style="text-align:center;font-size:24px;letter-spacing:8px"
+        onkeydown="if(event.key==='Enter')submitTfa()">
+    </div>
+    <button class="login-btn" onclick="submitTfa()">Verify →</button>
+    <div style="text-align:center;margin-top:10px"><span style="font-size:12px;color:#8892AA;cursor:pointer" onclick="showLoginForm()">← Back</span></div>
+  </div>
+  <div class="demo-creds">
+    <div class="demo-creds-title">Demo credentials</div>
+    ${[['Admin','r.adjapong@fncb.com','Admin@2024'],['Supervisor','j.mensah@fncb.com','Super@2024'],['Analyst','a.owusu@fncb.com','Analyst@2024'],['Read-only','viewer@fncb.com','View@2024']].map(([role,email,pw])=>
+    `<div class="demo-row" onclick="fillLogin('${email}','${pw}')"><span>${role}</span><span style="font-family:monospace">${email}</span></div>`).join('')}
+  </div>
+</div>`;
+}
+
+let _tfaTempToken = null;
+
+function fillLogin(email, pw) {
+  const e=$('login-email'), p=$('login-pass');
+  if(e) e.value=email; if(p) p.value=pw;
+}
+
+function showLoginForm() {
+  $('login-form').style.display='block';
+  $('tfa-form').style.display='none';
+}
+
+async function submitLogin() {
+  const email = ($('login-email')||{}).value?.trim();
+  const pass  = ($('login-pass')||{}).value;
+  const btn   = $('login-btn');
+  const err   = $('login-error');
+  if(!email||!pass){showErr('Enter email and password');return;}
+  if(btn){btn.textContent='Signing in...';btn.disabled=true;}
+  const r = await fetch(API+'/api/auth/login',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({email,password:pass})}).then(x=>x.json()).catch(()=>null);
+  if(btn){btn.textContent='Sign in →';btn.disabled=false;}
+  if(!r){showErr('Cannot reach server');return;}
+  if(r.requires_2fa){
+    _tfaTempToken=r.temp_token;
+    $('login-form').style.display='none';
+    $('tfa-form').style.display='block';
+    setTimeout(()=>{const c=$('tfa-code');if(c)c.focus();},100);
+    return;
+  }
+  if(r.ok){
+    _authToken=r.token;
+    _currentUser=r.user;
+    _userPerms=new Set();
+    localStorage.setItem('aml_token',r.token);
+    const lp=$('login-page');
+    if(lp) lp.style.display='none';
+    document.querySelector('.app').style.display='flex';
+    const sf=$('api-status');
+    if(sf) sf.innerHTML='Connected';
+    updateUserBadge();
+    await api('/api/auth/me').then(d=>{if(d?.permissions)_userPerms=new Set(d.permissions);});
+    go('dashboard');
+  } else {
+    showErr(r.error||'Login failed');
+  }
+}
+
+async function submitTfa() {
+  const code=($('tfa-code')||{}).value?.trim();
+  if(!code||code.length!==6){showErr('Enter a 6-digit code');return;}
+  const r = await fetch(API+'/api/auth/2fa/verify',{method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({temp_token:_tfaTempToken,code})}).then(x=>x.json()).catch(()=>null);
+  if(r?.ok){
+    _authToken=r.token; _currentUser=r.user; _userPerms=new Set();
+    localStorage.setItem('aml_token',r.token);
+    const lp=$('login-page'); if(lp) lp.style.display='none';
+    document.querySelector('.app').style.display='flex';
+    updateUserBadge();
+    await api('/api/auth/me').then(d=>{if(d?.permissions)_userPerms=new Set(d.permissions);});
+    go('dashboard');
+  } else { showErr(r?.error||'Invalid code'); }
+}
+
+function showErr(msg) {
+  const e=$('login-error');
+  if(e){e.textContent=msg;e.style.display='block';}
+}
+
+// ── Override api() to include auth token ─────────────────────────────────────
+const _origApi = window.api || (async (path,opts={})=>{
+  try{ const r=await fetch(API+path,{headers:{'Content-Type':'application/json'},...opts}); return r.json(); }
+  catch(e){ return null; }
+});
+window.api = async (path, opts={}) => {
+  if (_authToken && !opts.noAuth) {
+    opts.headers = {'Content-Type':'application/json','Authorization':`Bearer ${_authToken}`, ...(opts.headers||{})};
+  } else if (!opts.headers) {
+    opts.headers = {'Content-Type':'application/json'};
+  }
+  try {
+    const r = await fetch(API+path, opts);
+    if (r.status === 401 && path !== '/api/auth/login') {
+      _authToken=null; localStorage.removeItem('aml_token'); showLogin(); return null;
+    }
+    const ct = r.headers.get('Content-Type')||'';
+    if(ct.includes('json')) return r.json();
+    return {ok: r.ok, status: r.status};
+  } catch(e) { return null; }
+};
+
+// ── 1. ANALYTICS — EXECUTIVE DASHBOARD ───────────────────────────────────────
+async function analytics() {
+  let period = 'quarterly';
+  const data = await api(`/api/analytics/executive?period=${period}`) || {};
+  const kpis = data.kpis || {};
+  const series= data.series || {};
+  const labels= data.labels || [];
+
+  $('content').innerHTML = `
+<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px">
+  <div style="font-size:13px;color:var(--tx2)">AML Performance — ${period === 'quarterly' ? 'Last 8 quarters' : 'Last 12 months'}</div>
+  <div style="display:flex;gap:8px">
+    <button class="btn ${period==='quarterly'?'primary':''}" id="btn-q" onclick="switchPeriod('quarterly')" style="font-size:12px;padding:5px 12px">Quarterly</button>
+    <button class="btn ${period==='monthly'?'primary':''}" id="btn-m" onclick="switchPeriod('monthly')" style="font-size:12px;padding:5px 12px">Monthly</button>
+    <button class="btn" onclick="go('reports')" style="font-size:12px;padding:5px 12px">Export PDF →</button>
+  </div>
+</div>
+<div class="mrow" style="grid-template-columns:repeat(4,1fr)">
+  ${Object.entries(kpis).slice(0,8).map(([k,v])=>`
+  <div class="mc">
+    <div class="ml">${v.label}</div>
+    <div class="mv">${v.value}${v.unit}</div>
+    <div class="md ${v.delta<0&&['fp_rate','avg_review_time'].includes(k)?'':v.delta<0?'r':''}" style="${v.delta<0&&['fp_rate','avg_review_time'].includes(k)?'color:var(--green)':''}">
+      ${v.delta>0?'↑':'↓'} ${Math.abs(v.delta)}% vs prior
+    </div>
+  </div>`).join('')}
+</div>
+<div class="g2">
+  <div class="card"><div class="ch"><span class="ct">Alert volume vs FP rate</span></div><div class="cb"><div class="cw"><canvas id="alertVolChart"></canvas></div></div></div>
+  <div class="card"><div class="ch"><span class="ct">SAR filings trend</span></div><div class="cb"><div class="cw"><canvas id="sarTrendChart"></canvas></div></div></div>
+</div>
+<div class="g2">
+  <div class="card"><div class="ch"><span class="ct">Alert breakdown by typology</span></div><div class="cb"><div class="cw"><canvas id="typoChart"></canvas></div></div></div>
+  <div class="card"><div class="ch"><span class="ct">Industry benchmarks</span></div><div class="cb" id="bench-panel"></div></div>
+</div>`;
+
+  // Charts
+  const C = window.Chart;
+  if(!C) return;
+  _chartInst.av = new C($('alertVolChart'),{type:'bar',data:{labels,datasets:[
+    {type:'bar',label:'Alert volume',data:series.alert_volume||[],backgroundColor:'rgba(30,80,180,.15)',borderColor:'#1E50B4',borderWidth:1.5,yAxisID:'y'},
+    {type:'line',label:'FP rate %',data:series.fp_rates||[],borderColor:'#E24B4A',borderWidth:2,pointRadius:3,yAxisID:'y2',fill:false,tension:.3},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:11}}}},
+    scales:{y:{ticks:{font:{size:9}}},y2:{position:'right',ticks:{font:{size:9},callback:v=>v+'%'},grid:{display:false}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});
+  _chartInst.sar = new C($('sarTrendChart'),{type:'line',data:{labels,datasets:[
+    {label:'SARs filed',data:series.sar_count||[],borderColor:'#0F6E56',borderWidth:2,pointRadius:3,fill:{target:'origin',above:'rgba(15,110,86,.07)'},tension:.3},
+    {label:'Avg review time (h)',data:series.review_hours||[],borderColor:'#B8490A',borderWidth:2,pointRadius:3,fill:false,tension:.3,yAxisID:'y2'},
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:11}}}},
+    scales:{y:{ticks:{font:{size:9}}},y2:{position:'right',ticks:{font:{size:9}},grid:{display:false}},x:{ticks:{font:{size:9}},grid:{display:false}}}}});
+  const bd = data.breakdown?.by_typology || {};
+  _chartInst.typo = new C($('typoChart'),{type:'doughnut',data:{
+    labels:Object.keys(bd),datasets:[{data:Object.values(bd),backgroundColor:['#1E50B4','#7832B4','#E24B4A','#1EA064','#B8490A','#0F6E56','#8892AA','#BA7517'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:9,font:{size:10},padding:6}}}}});
+  // Benchmarks
+  const bm = data.benchmarks||{};
+  $('bench-panel').innerHTML = `
+  <div style="margin-bottom:12px;font-size:12px;color:var(--tx2)">Your institution vs industry average</div>
+  ${[['False-positive rate',bm.our_fp_rate,bm.industry_fp_rate,'%',true],
+     ['Avg review time (h)',bm.our_review_time,bm.industry_review_time,'h',true],
+     ['SAR filing rate',bm.our_sar_rate,bm.industry_sar_rate,'%',false]].map(([l,ours,ind,unit,lowerBetter])=>{
+    const better = lowerBetter ? ours<=ind : ours>=ind;
+    return `<div style="margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+        <span>${l}</span>
+        <span style="color:${better?'var(--green)':'var(--red)'};font-weight:600">${ours}${unit} <span style="color:var(--tx2);font-weight:400">vs ${ind}${unit}</span></span>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <div style="flex:1;height:6px;background:var(--g1);border-radius:3px"><div style="height:100%;width:${Math.min(100,ours/Math.max(ind,ours)*100)}%;background:${better?'var(--green)':'var(--red)'};border-radius:3px"></div></div>
+        <span class="bp ${better?'bf':'bc'}" style="font-size:10px">${better?'Better':'Above avg'}</span>
+      </div>
+    </div>`;}).join('')}`;
+
+  window.switchPeriod = async function(p) {
+    period = p;
+    await analytics();
+  };
+}
+
+// ── 2. TREND ANALYSIS ────────────────────────────────────────────────────────
+async function trends() {
+  const data = await api('/api/analytics/trends?months=12') || {};
+  const labels = data.labels || [];
+  const typo   = data.typology_trends || {};
+  const emerging = data.emerging || [];
+  const scores = data.score_bands || {};
+
+  $('content').innerHTML = `
+<div class="g2" style="margin-bottom:14px">
+  <div class="card"><div class="ch"><span class="ct">Typology trends — 12 months</span><span style="font-size:11px;color:var(--tx2)">Monthly alert volume per typology</span></div><div class="cb"><div class="cw" style="height:240px"><canvas id="typoTrendChart"></canvas></div></div></div>
+  <div class="card"><div class="ch"><span class="ct">Emerging typologies</span><span style="font-size:11px;color:var(--red)">↑ Fastest growing</span></div>
+    <div style="padding:14px">
+    ${emerging.length ? emerging.map((e,i)=>`
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--bdr)">
+      <div style="width:24px;height:24px;border-radius:50%;background:${i===0?'var(--red)':i===1?'var(--orange)':'var(--mid)'};color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0">${i+1}</div>
+      <div style="flex:1"><div style="font-size:13px;font-weight:500">${e.typology}</div>
+        <div style="font-size:11px;color:var(--tx2)">Avg ${e.recent_avg} alerts/month</div></div>
+      <div style="font-size:14px;font-weight:700;color:var(--red)">+${e.growth_pct}%</div>
+    </div>`).join('') : '<div style="color:var(--tx2);font-size:13px;text-align:center;padding:20px">No emerging typologies detected</div>'}
+    </div>
+  </div>
+</div>
+<div class="g2">
+  <div class="card"><div class="ch"><span class="ct">Alert risk score distribution — trend</span></div><div class="cb"><div class="cw"><canvas id="scoreBandChart"></canvas></div></div></div>
+  <div class="card"><div class="ch"><span class="ct">Channel mix over time</span></div><div class="cb"><div class="cw"><canvas id="channelTrendChart"></canvas></div></div></div>
+</div>`;
+
+  const C = window.Chart;
+  if(!C) return;
+  const colors = ['#E24B4A','#7832B4','#1E50B4','#0F6E56','#B8490A','#1EA064','#8892AA','#BA7517'];
+  _chartInst.tt = new C($('typoTrendChart'),{type:'line',data:{labels,datasets:
+    Object.entries(typo).map(([t,vals],i)=>({label:t,data:vals,borderColor:colors[i%colors.length],borderWidth:1.5,pointRadius:0,fill:false,tension:.3}))},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:9,font:{size:10},padding:6}}},
+      scales:{x:{ticks:{font:{size:9}},grid:{display:false}},y:{ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}}}}});
+  _chartInst.sb = new C($('scoreBandChart'),{type:'bar',data:{labels,datasets:
+    Object.entries(scores).map(([k,vals],i)=>({label:k,data:vals,backgroundColor:colors[i],stack:'s'}))},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:9,font:{size:10}}}},
+      scales:{x:{stacked:true,ticks:{font:{size:9}},grid:{display:false}},y:{stacked:true,ticks:{font:{size:9}}}}}});
+  const chTrend = data.channel_trends||{};
+  _chartInst.ct = new C($('channelTrendChart'),{type:'line',data:{labels,datasets:
+    Object.entries(chTrend).map(([c,vals],i)=>({label:c,data:vals,borderColor:colors[i%colors.length],borderWidth:1.5,pointRadius:0,fill:false,tension:.3}))},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:9,font:{size:10}}}},
+      scales:{x:{ticks:{font:{size:9}},grid:{display:false}},y:{ticks:{font:{size:9}}}}}});
+}
+
+// ── 3. GEOGRAPHIC RISK ────────────────────────────────────────────────────────
+async function geographic() {
+  const data = await api('/api/analytics/geographic') || {};
+  const countries = data.countries || [];
+  const regions   = data.region_risk || {};
+
+  $('content').innerHTML = `
+<div class="mrow">
+  <div class="mc"><div class="ml">Countries monitored</div><div class="mv">${countries.length}</div><div class="md">With transaction activity</div></div>
+  <div class="mc"><div class="ml">Critical risk</div><div class="mv" style="color:var(--red)">${countries.filter(c=>c.risk_level==='critical').length}</div><div class="md r">Immediate action</div></div>
+  <div class="mc"><div class="ml">High risk</div><div class="mv" style="color:var(--orange)">${countries.filter(c=>c.risk_level==='high').length}</div><div class="md">Enhanced monitoring</div></div>
+  <div class="mc"><div class="ml">Avg risk score</div><div class="mv">${(countries.reduce((s,c)=>s+c.risk_score,0)/Math.max(countries.length,1)).toFixed(1)}</div><div class="md">Out of 10</div></div>
+</div>
+<div class="g2">
+  <div class="card"><div class="ch"><span class="ct">Country risk heatmap</span><span style="font-size:11px;color:var(--tx2)">Risk score 1–10</span></div>
+    <div style="padding:0"><table><thead><tr><th>Country</th><th>Risk score</th><th>Risk level</th><th>Txn volume</th><th>Alerts</th><th>SARs</th></tr></thead><tbody>
+    ${countries.map(c=>`<tr>
+      <td style="font-weight:500">${c.flag} ${c.country}</td>
+      <td><div style="display:flex;align-items:center;gap:6px"><span style="font-weight:700;color:${c.risk_level==='critical'?'var(--red)':c.risk_level==='high'?'var(--orange)':c.risk_level==='elevated'?'var(--mid)':'var(--green)'}">${c.risk_score}</span>
+        <div style="width:40px;height:4px;background:var(--g1);border-radius:2px"><div style="height:100%;width:${c.risk_score*10}%;background:${c.risk_level==='critical'?'#E24B4A':c.risk_level==='high'?'#D05538':c.risk_level==='elevated'?'#BA7517':'#1EA064'};border-radius:2px"></div></div>
+      </div></td>
+      <td><span class="bp ${c.risk_level==='critical'?'bc':c.risk_level==='high'?'bh':c.risk_level==='elevated'?'bm':'bl'}" style="font-size:10px">${c.risk_level}</span></td>
+      <td style="font-size:12px">${c.txn_volume.toLocaleString()}</td>
+      <td style="font-weight:500;color:${c.alert_count>5?'var(--orange)':'var(--tx)'}">${c.alert_count}</td>
+      <td style="font-weight:500;color:${c.sar_count>0?'var(--red)':'var(--tx)'}">${c.sar_count}</td>
+    </tr>`).join('')}
+    </tbody></table></div>
+  </div>
+  <div>
+    <div class="card" style="margin-bottom:14px"><div class="ch"><span class="ct">Risk by region</span></div><div class="cb"><div class="cw" style="height:200px"><canvas id="regionChart"></canvas></div></div></div>
+    <div class="card"><div class="ch"><span class="ct">Top risk countries</span></div><div class="cb">
+    ${(data.top_risk||[]).slice(0,6).map(c=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px">
+      <span style="font-size:18px">${c.flag}</span>
+      <div style="flex:1"><div style="font-weight:500">${c.country}</div>
+        <div style="height:4px;background:var(--g1);border-radius:2px;margin-top:2px"><div style="height:100%;width:${c.risk_score*10}%;background:${c.risk_score>=9?'#E24B4A':c.risk_score>=7?'#D05538':'#BA7517'};border-radius:2px"></div></div>
+      </div>
+      <span style="font-weight:700;color:${c.risk_score>=9?'var(--red)':c.risk_score>=7?'var(--orange)':'var(--mid)'}">${c.risk_score}/10</span>
+    </div>`).join('')}
+    </div></div>
+  </div>
+</div>`;
+
+  const C = window.Chart;
+  if(!C||!$('regionChart')) return;
+  const rLabels=Object.keys(regions), rVals=Object.values(regions);
+  _chartInst.reg = new C($('regionChart'),{type:'bar',data:{labels:rLabels,datasets:[{data:rVals,
+    backgroundColor:rVals.map(v=>v>=8?'#E24B4A':v>=6?'#D05538':v>=4?'#BA7517':'#1EA064'),borderWidth:0,borderRadius:4}]},
+    options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+      scales:{x:{min:0,max:10,ticks:{font:{size:9}}},y:{ticks:{font:{size:9}}}}}});
+}
+
+// ── 4. EXPORT REPORTS ────────────────────────────────────────────────────────
+async function reports() {
+  const data = await api('/api/analytics/report?type=quarterly') || {};
+  const exec = data.executive_summary || {};
+  const typo = data.typology_breakdown || {};
+  const emerging = data.emerging_typologies || [];
+
+  $('content').innerHTML = `
+<div class="g2">
+<div>
+<div class="card" style="margin-bottom:14px">
+  <div class="ch"><span class="ct">Generate regulatory report</span></div>
+  <div class="cb">
+    <div class="frow">
+      <div><label class="flabel">Report type</label>
+        <select id="rpt-type" style="width:100%"><option value="quarterly">Quarterly AML Performance Report</option><option value="annual">Annual AML Programme Review</option><option value="incident">Incident / SAR Summary Report</option></select>
+      </div>
+      <div><label class="flabel">Period</label>
+        <input id="rpt-period" type="text" value="${data.period||'Q1 2026'}">
+      </div>
+    </div>
+    <div><label class="flabel">Prepared by</label>
+      <input id="rpt-officer" type="text" value="${_currentUser?.name||'AML Compliance Division'}" style="margin-bottom:12px">
+    </div>
+    <button class="btn primary" onclick="generatePdfReport()" style="width:100%;padding:10px">Generate & download PDF →</button>
+    <div style="font-size:11px;color:var(--tx2);margin-top:8px;line-height:1.6">Generates a formatted PDF report suitable for regulatory submission. Includes executive summary, KPI tables, typology breakdown, and the regulatory compliance statement.</div>
+  </div>
+</div>
+<div class="card">
+  <div class="ch"><span class="ct">Report preview</span><span style="font-size:11px;color:var(--tx2)">${data.period}</span></div>
+  <div style="padding:16px;font-size:12px;line-height:1.7;color:var(--tx2)">${data.regulatory_statement||''}</div>
+</div>
+</div>
+<div>
+<div class="card" style="margin-bottom:14px">
+  <div class="ch"><span class="ct">Executive summary — ${data.period}</span></div>
+  <div style="padding:14px">
+    <div style="font-size:12px;line-height:1.8;color:var(--tx);margin-bottom:12px">${exec.narrative||''}</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      ${[['Total alerts',exec.total_alerts,''],['SARs filed',exec.sars_filed,''],['FP rate',exec.fp_rate,'%'],['Avg review time',exec.review_time,'h'],['Exam score',exec.exam_score,'%'],['SAR on-time',exec.sar_on_time,'%']].map(([l,v,u])=>`
+      <div style="background:var(--bg2);border-radius:6px;padding:10px">
+        <div style="font-size:10px;color:var(--tx2);text-transform:uppercase;letter-spacing:.3px">${l}</div>
+        <div style="font-size:18px;font-weight:500;margin-top:2px">${v}${u}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+</div>
+<div class="card">
+  <div class="ch"><span class="ct">Emerging typologies</span></div>
+  <div style="padding:12px">
+    ${emerging.map((e,i)=>`<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px">
+      <span style="font-weight:700;color:${i===0?'var(--red)':'var(--orange)'}">${i+1}.</span>
+      <span style="flex:1;font-weight:500">${e.typology}</span>
+      <span style="color:var(--red);font-weight:600">+${e.growth_pct}%</span>
+    </div>`).join('')}
+  </div>
+</div>
+</div>
+</div>`;
+}
+
+async function generatePdfReport() {
+  const type   = ($('rpt-type')||{}).value||'quarterly';
+  const period = ($('rpt-period')||{}).value||'';
+  const data   = await api(`/api/analytics/report?type=${type}&period=${encodeURIComponent(period)}`);
+  if(!data){toast('Failed to load report data');return;}
+  // Generate HTML-based PDF-ready report and trigger print dialog
+  const exec = data.executive_summary||{};
+  const html = `<!DOCTYPE html><html><head><title>AML Report — ${data.period}</title>
+<style>body{font-family:Arial,sans-serif;margin:40px;color:#1a1a18;font-size:13px;line-height:1.6}
+h1{color:#0F285A;font-size:22px;border-bottom:3px solid #0F285A;padding-bottom:8px}
+h2{color:#1E50B4;font-size:16px;margin-top:24px}
+h3{font-size:13px;color:#5a5a56;text-transform:uppercase;letter-spacing:.5px}
+table{width:100%;border-collapse:collapse;margin:12px 0}
+th{background:#0F285A;color:#fff;padding:8px 12px;text-align:left;font-size:12px}
+td{padding:8px 12px;border-bottom:1px solid #e0e0dc;font-size:12px}
+.kpi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:12px 0}
+.kpi{background:#EEF5FF;border-radius:6px;padding:12px;text-align:center}
+.kpi-val{font-size:24px;font-weight:700;color:#0F285A}
+.kpi-lbl{font-size:11px;color:#5a5a56;margin-top:2px}
+.footer{margin-top:40px;padding-top:12px;border-top:1px solid #e0e0dc;font-size:10px;color:#8892AA}
+@media print{body{margin:20px}.no-print{display:none}}
+</style></head><body>
+<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px">
+  <div><h1>AML Performance Report</h1><div style="color:#5a5a56">${data.institution} · ${data.period} · Prepared: ${data.prepared_at}</div></div>
+  <div style="text-align:right;font-size:11px;color:#E24B4A;font-weight:600">CONFIDENTIAL</div>
+</div>
+<h2>Executive Summary</h2>
+<p>${exec.narrative}</p>
+<div class="kpi-grid">
+  ${[['Total Alerts',exec.total_alerts,''],['SARs Filed',exec.sars_filed,''],['FP Rate',exec.fp_rate,'%'],['Avg Review Time',exec.review_time,'h'],['Exam Score',exec.exam_score,'%'],['SAR On-Time',exec.sar_on_time,'%']].map(([l,v,u])=>`<div class="kpi"><div class="kpi-val">${v}${u}</div><div class="kpi-lbl">${l}</div></div>`).join('')}
+</div>
+<h2>Typology Breakdown</h2>
+<table><tr><th>Typology</th><th>Alert count</th></tr>
+${Object.entries(data.typology_breakdown||{}).sort((a,b)=>b[1]-a[1]).map(([t,c])=>`<tr><td>${t}</td><td>${c}</td></tr>`).join('')}
+</table>
+<h2>Emerging Typologies</h2>
+${(data.emerging_typologies||[]).map((e,i)=>`<p>${i+1}. <strong>${e.typology}</strong> — +${e.growth_pct}% growth (avg ${e.recent_avg} alerts/month)</p>`).join('')}
+<h2>Regulatory Statement</h2><p>${data.regulatory_statement}</p>
+<div class="footer">Generated by AML-TMS Platform v2.4 · ${data.generated_at?.split('T')[0]} · ${data.prepared_by}</div>
+<script>window.onload=function(){window.print();}<\/script>
+</body></html>`;
+  const w = window.open('','_blank');
+  if(w){w.document.write(html);w.document.close();}
+  else toast('Allow popups to download the PDF report');
+}
+
+// ── 5. USER MANAGEMENT ────────────────────────────────────────────────────────
+async function userManagement() {
+  if(!_userPerms.has('manage_users') && !_userPerms.has('view_all_audit')) {
+    $('content').innerHTML=`<div style="padding:40px;text-align:center"><div style="font-size:32px;margin-bottom:12px">🔒</div><div style="font-size:14px;font-weight:500">Access restricted</div><div style="font-size:13px;color:var(--tx2);margin-top:6px">User management requires admin role</div></div>`;
+    return;
+  }
+  const data = await api('/api/users') || {};
+  const users = data.users || [];
+  const auditData = await api('/api/users/audit') || {};
+  const audit = auditData.audit || [];
+
+  $('content').innerHTML = `
+<div class="mrow">
+  <div class="mc"><div class="ml">Total users</div><div class="mv">${users.length}</div><div class="md">${users.filter(u=>u.active).length} active</div></div>
+  <div class="mc"><div class="ml">Admins</div><div class="mv">${users.filter(u=>u.role==='admin').length}</div><div class="md">Full access</div></div>
+  <div class="mc"><div class="ml">Supervisors</div><div class="mv">${users.filter(u=>u.role==='supervisor').length}</div><div class="md">SAR approval rights</div></div>
+  <div class="mc"><div class="ml">Analysts</div><div class="mv">${users.filter(u=>u.role==='analyst').length}</div><div class="md">Investigation only</div></div>
+</div>
+<div class="g2">
+<div>
+<div class="card" style="margin-bottom:14px">
+  <div class="ch"><span class="ct">Users</span><button class="btn" onclick="showCreateUser()" style="font-size:11px;padding:4px 10px">+ Add user</button></div>
+  <div id="user-list" style="padding:0">
+  ${users.map(u=>`
+  <div style="display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--bdr)">
+    <div style="width:34px;height:34px;border-radius:50%;background:${u.color};color:#fff;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0">${u.avatar}</div>
+    <div style="flex:1;min-width:0">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span style="font-size:13px;font-weight:500">${u.name}</span>
+        ${u.locked?'<span class="bp bc" style="font-size:9px">Locked</span>':''}
+        ${!u.active?'<span class="bp bx" style="font-size:9px">Inactive</span>':''}
+        ${u.tfa_enabled?'<span class="bp bf" style="font-size:9px">2FA</span>':''}
+      </div>
+      <div style="font-size:11px;color:var(--tx2)">${u.email} · ${u.department}</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+      <span class="bp ${u.role==='admin'?'bc':u.role==='supervisor'?'bo':u.role==='analyst'?'bf':'bx'}" style="font-size:10px">${u.role}</span>
+      ${u.locked?`<button class="btn" onclick="unlockUser('${u.user_id}')" style="font-size:10px;padding:2px 8px">Unlock</button>`:''}
+      <button class="btn" onclick="editUser('${u.user_id}')" style="font-size:10px;padding:2px 8px">Edit</button>
+    </div>
+  </div>`).join('')}
+  </div>
+</div>
+<div class="card" id="user-form" style="display:none">
+  <div class="ch"><span class="ct" id="form-title">Add user</span></div>
+  <div class="cb">
+    <div class="frow">
+      <div><label class="flabel">Full name</label><input id="uf-name" type="text" placeholder="Jane Smith"></div>
+      <div><label class="flabel">Email</label><input id="uf-email" type="email" placeholder="jane@bank.com"></div>
+      <div><label class="flabel">Role</label>
+        <select id="uf-role">
+          <option value="analyst">Analyst</option>
+          <option value="supervisor">Supervisor</option>
+          <option value="admin">Admin</option>
+          <option value="readonly">Read-only</option>
+        </select>
+      </div>
+      <div><label class="flabel">Department</label><input id="uf-dept" type="text" value="AML Compliance"></div>
+    </div>
+    <div><label class="flabel">Password (leave blank to keep current)</label>
+      <input id="uf-pass" type="password" placeholder="Min 8 characters" style="margin-bottom:10px">
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn primary" id="uf-submit" onclick="submitUserForm()" style="padding:8px 16px">Save user</button>
+      <button class="btn" onclick="$('user-form').style.display='none'" style="padding:8px 16px">Cancel</button>
+    </div>
+  </div>
+</div>
+</div>
+<div>
+<div class="card" style="margin-bottom:14px">
+  <div class="ch"><span class="ct">Role permissions</span></div>
+  <div style="padding:12px">
+    ${Object.entries(data.roles||{}).map(([role,perms])=>`
+    <div style="margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--bdr)">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+        <span class="bp ${role==='admin'?'bc':role==='supervisor'?'bo':role==='analyst'?'bf':'bx'}" style="font-size:11px">${role}</span>
+        <span style="font-size:11px;color:var(--tx2)">${perms.length} permissions</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:3px">
+        ${perms.slice(0,6).map(p=>`<span style="font-size:9px;padding:1px 5px;border-radius:3px;background:var(--bg2);color:var(--tx2)">${p.replace(/_/g,' ')}</span>`).join('')}
+        ${perms.length>6?`<span style="font-size:9px;color:var(--tx2)">+${perms.length-6} more</span>`:''}
+      </div>
+    </div>`).join('')}
+  </div>
+</div>
+<div class="card">
+  <div class="ch"><span class="ct">User activity trail</span><span style="font-size:11px;color:var(--tx2)">${audit.length} entries</span></div>
+  <div style="max-height:320px;overflow-y:auto">
+    ${audit.length ? audit.slice(0,30).map(e=>`
+    <div style="display:flex;align-items:flex-start;gap:8px;padding:8px 12px;border-bottom:1px solid var(--bdr);font-size:11px">
+      <div style="flex:0 0 90px;color:var(--tx2)">${e.ts?.split('T')[1]?.slice(0,8)||''}</div>
+      <div style="flex:0 0 90px;font-weight:500;overflow:hidden;text-overflow:ellipsis">${(e.user_id||'').replace('usr_','')}</div>
+      <span style="font-family:monospace;font-size:10px;background:var(--g1);padding:1px 5px;border-radius:3px;flex-shrink:0">${e.action}</span>
+      <div style="color:var(--tx2);flex:1">${e.detail||e.target||''}</div>
+    </div>`).join('') : '<div style="padding:20px;text-align:center;color:var(--tx2)">No activity recorded</div>'}
+  </div>
+</div>
+</div>
+</div>`;
+}
+
+let _editingUserId = null;
+function showCreateUser() {
+  _editingUserId = null;
+  $('form-title').textContent = 'Add new user';
+  $('uf-name').value=''; $('uf-email').value=''; $('uf-role').value='analyst';
+  $('uf-dept').value='AML Compliance'; $('uf-pass').value='';
+  $('user-form').style.display='block';
+}
+function editUser(uid) {
+  const users_raw = document.querySelectorAll('[data-uid]');
+  _editingUserId = uid;
+  $('form-title').textContent = 'Edit user';
+  $('user-form').style.display='block';
+}
+async function unlockUser(uid) {
+  const r = await api('/api/users/unlock',{method:'POST',body:JSON.stringify({user_id:uid})});
+  if(r?.ok){toast('User unlocked');userManagement();}
+}
+async function submitUserForm() {
+  const name  = ($('uf-name')||{}).value?.trim();
+  const email = ($('uf-email')||{}).value?.trim();
+  const role  = ($('uf-role')||{}).value;
+  const dept  = ($('uf-dept')||{}).value;
+  const pass  = ($('uf-pass')||{}).value;
+  if(!name||!email){toast('Name and email are required');return;}
+  if(_editingUserId) {
+    const updates={name,role,department:dept};
+    if(pass) updates.password=pass;
+    const r=await api('/api/users/update',{method:'POST',body:JSON.stringify({user_id:_editingUserId,updates})});
+    if(r?.ok){toast('User updated');userManagement();}
+    else toast(r?.error||'Update failed');
+  } else {
+    const r=await api('/api/users/create',{method:'POST',body:JSON.stringify({name,email,password:pass||'TempPass@2024',role,department:dept})});
+    if(r?.ok){toast(`User created — temp password: ${pass||'TempPass@2024'}`);userManagement();}
+    else toast(r?.error||'Create failed');
+  }
+}
+
+// ── My Profile / 2FA Settings ─────────────────────────────────────────────────
+async function myProfile() {
+  const user = _currentUser;
+  if(!user){toast('Not logged in');return;}
+  $('content').innerHTML = `
+<div style="max-width:520px">
+<div class="card" style="margin-bottom:14px">
+  <div class="ch"><span class="ct">My profile</span></div>
+  <div class="cb">
+    <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px">
+      <div style="width:52px;height:52px;border-radius:50%;background:${user.color};color:#fff;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700">${user.avatar}</div>
+      <div><div style="font-size:16px;font-weight:500">${user.name}</div>
+        <div style="font-size:12px;color:var(--tx2)">${user.email} · ${user.department}</div>
+        <span class="bp ${user.role==='admin'?'bc':user.role==='supervisor'?'bo':user.role==='analyst'?'bf':'bx'}" style="font-size:11px;margin-top:4px">${user.role}</span>
+      </div>
+    </div>
+    <div style="font-size:12px;line-height:1.8;color:var(--tx2)">
+      <div>Last login: ${user.last_login ? new Date(user.last_login).toLocaleString() : 'First session'}</div>
+      <div>Login count: ${user.login_count||1}</div>
+    </div>
+  </div>
+</div>
+<div class="card" style="margin-bottom:14px">
+  <div class="ch"><span class="ct">Change password</span></div>
+  <div class="cb">
+    <input id="cp-pass" type="password" placeholder="New password (min 8 chars)" style="margin-bottom:10px">
+    <button class="btn primary" onclick="changePassword()" style="width:100%;padding:9px">Update password</button>
+  </div>
+</div>
+<div class="card">
+  <div class="ch"><span class="ct">Two-factor authentication</span>
+    <span class="bp ${user.tfa_enabled?'bf':'bx'}" style="font-size:11px">${user.tfa_enabled?'Enabled':'Disabled'}</span>
+  </div>
+  <div class="cb">
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:12px;line-height:1.6">
+      ${user.tfa_enabled?'2FA is active. Each login requires a 6-digit code from your authenticator app.':'Enable 2FA to require a code from your authenticator app on every login. Demo mode: any 6-digit code is accepted.'}
+    </div>
+    <button class="btn ${user.tfa_enabled?'danger':'primary'}" onclick="toggle2FA(${!user.tfa_enabled})" style="padding:9px 18px">${user.tfa_enabled?'Disable 2FA':'Enable 2FA'}</button>
+  </div>
+</div>
+</div>`;
+}
+
+async function changePassword() {
+  const pass = ($('cp-pass')||{}).value?.trim();
+  if(!pass||pass.length<8){toast('Password must be at least 8 characters');return;}
+  const r=await api('/api/auth/change_password',{method:'POST',body:JSON.stringify({new_password:pass})});
+  if(r?.ok){toast('Password updated successfully');($('cp-pass')||{value:''}).value='';} else toast(r?.error||'Failed');
+}
+
+async function toggle2FA(enable) {
+  const r=await api('/api/auth/2fa/toggle',{method:'POST',body:JSON.stringify({enabled:enable})});
+  if(r?.ok){
+    _currentUser.tfa_enabled=enable;
+    toast(`2FA ${enable?'enabled':'disabled'}${enable?' — demo: any 6-digit code accepted':''}`);
+    myProfile();
+  }
+}
+
+// ── Register new pages ────────────────────────────────────────────────────────
+const _newPages = {
+  analytics, trends, geographic, reports,
+  users: userManagement,
+  profile: myProfile,
+};
+const _newTitles = {
+  analytics:'Executive Dashboard', trends:'Trend Analysis',
+  geographic:'Geographic Risk', reports:'Export Reports',
+  users:'User Management', profile:'My Profile',
+};
+
+const _prevGoFinal = window.go;
+window.go = async function(page) {
+  if(_newPages[page]) {
+    if(window._liveFeedTimer){clearInterval(window._liveFeedTimer);window._liveFeedTimer=null;}
+    Object.values(window._chartInst||{}).forEach(c=>{try{c.destroy()}catch(e){}});
+    window._chartInst={};
+    if(window.innerWidth<=768) closeSidebar();
+    document.querySelectorAll('.ni').forEach(el=>{
+      el.classList.toggle('active',el.getAttribute('onclick')===`go('${page}')`);
+    });
+    const pt=$('page-title'); if(pt) pt.textContent=_newTitles[page]||page;
+    $('content').innerHTML='<div style="padding:40px;text-align:center;color:var(--tx2)"><div class="spin"></div></div>';
+    // Log page navigation
+    if(_authToken) await api('/api/auth/log_action',{method:'POST',body:JSON.stringify({action:'PAGE_VIEW',target:page})});
+    await _newPages[page]();
+  } else {
+    await _prevGoFinal(page);
+  }
+};
+
+// Add profile link to sidebar footer on click
+const sfoot = $('api-status');
+if(sfoot) sfoot.style.cursor='pointer';
+
+// ── Bootstrap ─────────────────────────────────────────────────────────────────
+// Override the original initAuth call — check auth before showing dashboard
+const _origInit = window.initAuth;
+document.addEventListener('DOMContentLoaded', ()=>{});
+// Run auth init
+initAuth();
 </script>
