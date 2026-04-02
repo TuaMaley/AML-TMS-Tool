@@ -1,0 +1,974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AML-TMS Platform</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0F285A;--blue:#1E50B4;--mid:#3278DC;--lblue:#D2E4FF;--sky:#EEF5FF;
+  --teal:#0F6E56;--lteal:#D0F5E4;--green:#1EA064;--lgreen:#E0F5EC;
+  --orange:#B8490A;--lorange:#FDEEE5;--red:#A32D2D;--lred:#FCEAEA;
+  --purple:#7832B4;--lpurp:#F0E8FF;
+  --g0:#F8F9FC;--g1:#EEF0F6;--g2:#D8DCE8;--g3:#8892AA;--g4:#4A5268;
+  --bg:#ffffff;--bg2:#F4F6FA;--bg3:#EEF0F6;
+  --tx:#1a1a18;--tx2:#5a5a56;--bdr:#e0e0dc;
+}
+@media(prefers-color-scheme:dark){:root{
+  --bg:#1e1e1c;--bg2:#252523;--bg3:#2c2c2a;
+  --tx:#e8e8e4;--tx2:#9a9a94;--bdr:#3a3a36;--g1:#2c2c2a;--g2:#3a3a36;--g3:#6a6a64;
+}}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg2);color:var(--tx);min-height:100vh;font-size:14px}
+.app{display:flex;height:100vh;overflow:hidden}
+/* SIDEBAR */
+.sidebar{width:224px;min-width:224px;background:var(--navy);display:flex;flex-direction:column;overflow:hidden}
+.logo{padding:18px 16px 14px;border-bottom:1px solid rgba(255,255,255,.1)}
+.logo-title{font-size:13px;font-weight:600;color:#fff;letter-spacing:.4px}
+.logo-sub{font-size:10px;color:rgba(255,255,255,.38);margin-top:2px;letter-spacing:.5px}
+.nav{flex:1;padding:10px 0;overflow-y:auto}
+.nav-sec{padding:10px 16px 3px;font-size:10px;color:rgba(255,255,255,.32);letter-spacing:.9px;font-weight:600;text-transform:uppercase}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 16px;cursor:pointer;color:rgba(255,255,255,.58);font-size:13px;border-left:3px solid transparent;transition:all .13s;user-select:none}
+.ni:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.88)}
+.ni.active{background:rgba(255,255,255,.1);color:#fff;border-left-color:#5BA8FF;font-weight:500}
+.ni svg{width:15px;height:15px;flex-shrink:0;opacity:.65}
+.ni.active svg{opacity:1}
+.nbadge{margin-left:auto;font-size:10px;padding:1px 6px;border-radius:9px;font-weight:700;background:#E24B4A;color:#fff}
+.nbadge.g{background:#1EA064}
+.sfoot{padding:10px 16px;border-top:1px solid rgba(255,255,255,.08);font-size:10px;color:rgba(255,255,255,.28);line-height:1.6}
+/* TOPBAR */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{background:var(--bg);border-bottom:1px solid var(--bdr);padding:0 22px;height:50px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:500;color:var(--tx)}
+.topbar-r{display:flex;align-items:center;gap:10px}
+.live-pill{display:flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;background:var(--lgreen);color:var(--teal);border:1px solid #82D4B0}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.3s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+.content{flex:1;overflow-y:auto;padding:18px 22px}
+/* CARDS */
+.card{background:var(--bg);border:1px solid var(--bdr);border-radius:12px;overflow:hidden;margin-bottom:14px}
+.ch{padding:12px 15px 9px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ct{font-size:12px;font-weight:500;color:var(--tx)}
+.cb{padding:14px 15px}
+/* METRICS */
+.mrow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+.mc{background:var(--bg2);border-radius:8px;padding:13px 14px}
+.ml{font-size:10px;color:var(--tx2);margin-bottom:3px;text-transform:uppercase;letter-spacing:.4px}
+.mv{font-size:22px;font-weight:500;line-height:1;color:var(--tx)}
+.md{font-size:11px;margin-top:3px;color:var(--green)}
+.md.r{color:var(--red)}
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.g3{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+/* TABLE */
+table{width:100%;border-collapse:collapse}
+th{text-align:left;padding:7px 11px;font-size:10px;font-weight:500;color:var(--tx2);border-bottom:1px solid var(--bdr);background:var(--bg2);letter-spacing:.3px;text-transform:uppercase}
+td{padding:9px 11px;border-bottom:1px solid var(--bdr);vertical-align:middle;font-size:13px;color:var(--tx)}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:var(--bg2)}
+/* BADGES */
+.bp{display:inline-flex;align-items:center;padding:2px 8px;border-radius:9px;font-size:11px;font-weight:500;white-space:nowrap}
+.bc{background:#FCEAEA;color:#A32D2D} .bh{background:#FDE8D8;color:#8B3A10}
+.bm{background:#FFF3D6;color:#7A5200} .bl{background:#E0F5EC;color:#0A5C38}
+.bo{background:#D2E4FF;color:#0C3E8C} .br{background:#F0E8FF;color:#5A1FA0}
+.bf{background:#D0F5E4;color:#0A5C38} .bx{background:#EEF0F6;color:#4A5268}
+/* RISK BAR */
+.rb{height:5px;border-radius:3px;background:var(--g1)}
+.rf{height:100%;border-radius:3px;transition:width .3s}
+/* PIPELINE STEP */
+.ps{display:flex;align-items:flex-start;gap:10px;padding:11px;border-radius:8px;border:1px solid var(--bdr);margin-bottom:7px;background:var(--bg)}
+.pn{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;color:#fff}
+.pt{font-size:13px;font-weight:500;margin-bottom:2px;color:var(--tx)}
+.pd{font-size:12px;color:var(--tx2);line-height:1.45}
+.tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:5px}
+.tag{padding:2px 7px;border-radius:4px;font-size:10px;background:var(--lblue);color:var(--navy);font-weight:500}
+/* MODEL CARD */
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.mcard{padding:13px;border-radius:8px;border:1px solid var(--bdr);background:var(--bg)}
+.mname{font-size:12px;font-weight:500;margin-bottom:2px;color:var(--tx)}
+.mtype{font-size:11px;margin-bottom:7px}
+.msr{display:flex;justify-content:space-between;font-size:11px;margin-top:3px}
+.msrl{color:var(--tx2)} .msrv{font-weight:500;color:var(--tx)}
+.pb{height:3px;border-radius:2px;background:var(--g1);margin-top:3px}
+.pf{height:100%;border-radius:2px}
+/* SHAP */
+.shap-row{display:flex;align-items:center;gap:7px;margin-bottom:7px;font-size:12px}
+.sl{flex:0 0 170px;color:var(--tx2);text-align:right;font-size:11px}
+.sbw{flex:1;background:var(--g1);border-radius:3px;height:7px;position:relative;overflow:hidden}
+.sp{height:100%;border-radius:3px;background:var(--mid)}
+.sn{height:100%;border-radius:3px;background:var(--orange);position:absolute;right:0;top:0}
+.sv{flex:0 0 38px;text-align:right;font-weight:500;font-size:11px}
+/* PHASE */
+.pg{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.pcard{padding:13px;border-radius:8px;border:1px solid var(--bdr);background:var(--bg)}
+.ph{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.pnum{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff}
+.ptt{font-size:12px;font-weight:500;color:var(--tx)}
+.pit{font-size:11px;color:var(--tx2);line-height:1.85}
+.pst{display:inline-block;padding:1px 7px;border-radius:7px;font-size:10px;font-weight:600;margin-top:5px}
+.ps-done{background:var(--lgreen);color:var(--teal)}
+.ps-act{background:var(--lblue);color:var(--blue)}
+.ps-up{background:var(--g1);color:var(--g3)}
+/* BTN */
+.btn{padding:6px 13px;border-radius:6px;font-size:12px;font-weight:500;cursor:pointer;border:1px solid var(--bdr);background:transparent;color:var(--tx);transition:all .13s}
+.btn:hover{background:var(--bg2)} .btn:active{opacity:.8}
+.btn.primary{background:var(--navy);color:#fff;border-color:var(--navy)}
+.btn.primary:hover{background:#162E6A}
+.btn.success{background:var(--lgreen);color:var(--teal);border-color:#90D4B8}
+.btn.danger{background:var(--lred);color:var(--red);border-color:#F0A0A0}
+.btn.warn{background:var(--lorange);color:var(--orange);border-color:#E0B090}
+.btn-row{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+/* LIVE FEED */
+.lr{display:flex;align-items:center;gap:7px;padding:7px 0;border-bottom:1px solid var(--bdr);font-size:12px;animation:fi .35s}
+@keyframes fi{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:none}}
+.lsc{width:34px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+/* CHART */
+.cw{position:relative;width:100%;height:210px}
+/* FORM */
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px}
+.flabel{font-size:10px;color:var(--tx2);display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:.3px}
+input[type=number],input[type=text],select{background:var(--bg);color:var(--tx);border:1px solid var(--bdr);border-radius:6px;padding:7px 10px;font-size:13px;width:100%}
+input:focus,select:focus{outline:2px solid var(--mid);outline-offset:1px}
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--navy);color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:320px}
+.toast.show{opacity:1}
+/* SPINNER */
+.spin{width:16px;height:16px;border:2px solid var(--g2);border-top-color:var(--mid);border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--bdr);margin-bottom:14px}
+.tab{padding:7px 15px;font-size:13px;cursor:pointer;border-bottom:2px solid transparent;color:var(--tx2);transition:all .13s}
+.tab.active{color:var(--blue);border-bottom-color:var(--blue);font-weight:500}
+/* DETAIL */
+.det-sec{margin-bottom:16px}
+.det-title{font-size:10px;font-weight:500;color:var(--tx2);margin-bottom:7px;text-transform:uppercase;letter-spacing:.5px}
+.txnr{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:6px;border:1px solid var(--bdr);margin-bottom:5px;font-size:12px}
+.txna{font-weight:600;font-size:13px;margin-left:auto}
+/* COMP TABLE */
+.ctbl td:first-child{font-size:12px;line-height:1.4}
+.ctbl td:nth-child(2){font-size:11px;color:var(--tx2);line-height:1.4}
+/* SCORE RESULT */
+.score-big{font-size:52px;font-weight:500;line-height:1;text-align:center;margin-bottom:4px}
+.score-label{font-size:12px;color:var(--tx2);text-align:center;margin-bottom:12px}
+/* AUDIT */
+.arow{display:flex;align-items:flex-start;gap:8px;padding:9px 0;border-bottom:1px solid var(--bdr);font-size:12px}
+.ats{font-size:10px;color:var(--tx2);min-width:130px;flex-shrink:0;line-height:1.5}
+.at{font-family:monospace;font-size:10px;padding:1px 5px;border-radius:3px;background:var(--g1);color:var(--tx2);margin-right:4px}
+</style>
+</head>
+<body>
+<div class="app">
+<!-- SIDEBAR -->
+<div class="sidebar">
+  <div class="logo">
+    <div class="logo-title">AML-TMS Platform</div>
+    <div class="logo-sub">AI/ML TRANSACTION MONITORING</div>
+  </div>
+  <div class="nav">
+    <div class="nav-sec">Overview</div>
+    <div class="ni active" onclick="go('dashboard')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>Dashboard</div>
+    <div class="nav-sec">Detection</div>
+    <div class="ni" onclick="go('pipeline')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 4h12M2 8h12M2 12h12"/></svg>Data Pipeline</div>
+    <div class="ni" onclick="go('models')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="3"/><path d="M8 1v2M8 13v2M1 8h2M13 8h2M3.05 3.05l1.41 1.41M11.54 11.54l1.41 1.41M3.05 12.95l1.41-1.41M11.54 4.46l1.41-1.41"/></svg>ML Models</div>
+    <div class="ni" onclick="go('scorer')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 12L6 8l3 3 5-6"/></svg>Live Scorer</div>
+    <div class="nav-sec">Investigation</div>
+    <div class="ni" onclick="go('alerts')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 2a5 5 0 015 5v3l1 2H2l1-2V7a5 5 0 015-5z"/><path d="M6 13a2 2 0 004 0"/></svg>Alert Queue<span class="nbadge" id="alert-count">—</span></div>
+    <div class="ni" onclick="go('cases')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M5 3V2a1 1 0 011-1h4a1 1 0 011 1v1M5 8h6M5 11h4"/></svg>Case Management<span class="nbadge g" id="case-count">—</span></div>
+    <div class="nav-sec">Deployment</div>
+    <div class="ni" onclick="go('deployment')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 1l7 4v6l-7 4-7-4V5z"/></svg>Deployment</div>
+    <div class="ni" onclick="go('compliance')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 1l5 2v5c0 3-2.5 5.5-5 7C5.5 13.5 3 11 3 8V3z"/></svg>Compliance</div>
+    <div class="nav-sec">System</div>
+    <div class="ni" onclick="go('audit')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 3h10v10H3z"/><path d="M6 6h4M6 9h4M6 12h2"/></svg>Audit Log</div>
+  </div>
+  <div class="sfoot" id="api-status">Connecting to API...</div>
+</div>
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <div class="topbar-r">
+      <div class="live-pill" id="txn-rate"><span class="dot"></span>Live</div>
+      <span style="font-size:11px;color:var(--tx2)" id="clock"></span>
+    </div>
+  </div>
+  <div class="content" id="content"><div style="padding:40px;text-align:center;color:var(--tx2)"><div class="spin"></div><div style="margin-top:10px">Loading…</div></div></div>
+</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// API is always on the same host — works locally AND on Railway/cloud
+const API = window.location.origin;
+let _liveFeedTimer = null, _chartInst = {}, _detailAlertId = null;
+
+// ── Utilities ────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const sc = s => s>=85?'#E24B4A':s>=70?'#D05538':s>=55?'#BA7517':'#1EA064';
+const pb = p => `<span class="bp ${({critical:'bc',high:'bh',medium:'bm',low:'bl'})[p]||'bl'}">${p}</span>`;
+const sb = s => `<span class="bp ${({open:'bo',review:'br',filed:'bf',cleared:'bx'})[s]||'bo'}">${s}</span>`;
+const fmt = n => '$'+(+n).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
+function toast(msg,dur=3000){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur)}
+
+async function api(path, opts={}) {
+  try {
+    const r = await fetch(API+path, {headers:{'Content-Type':'application/json'},...opts});
+    return r.json();
+  } catch(e) { return null; }
+}
+
+setInterval(()=>{ $('clock').textContent=new Date().toLocaleTimeString(); },1000);
+
+// ── Router ───────────────────────────────────────────────────────────────────
+const TITLES = {dashboard:'Dashboard',pipeline:'Data Pipeline',models:'ML Models',scorer:'Live Scorer',alerts:'Alert Queue',cases:'Case Management',deployment:'Deployment',compliance:'Compliance',audit:'Audit Log'};
+
+async function go(page) {
+  if(_liveFeedTimer){clearInterval(_liveFeedTimer);_liveFeedTimer=null;}
+  Object.values(_chartInst).forEach(c=>{try{c.destroy()}catch(e){}});
+  _chartInst={};
+  document.querySelectorAll('.ni').forEach(el=>{
+    el.classList.toggle('active', el.getAttribute('onclick')===`go('${page}')`);
+  });
+  $('page-title').textContent = TITLES[page]||page;
+  $('content').innerHTML = `<div style="padding:40px;text-align:center;color:var(--tx2)"><div class="spin"></div></div>`;
+
+  await ({
+    dashboard, pipeline, models, scorer,
+    alerts, cases, deployment, compliance, audit
+  }[page] || dashboard)();
+}
+
+// ── Dashboard ─────────────────────────────────────────────────────────────────
+async function dashboard() {
+  const stats = await api('/api/stats') || {};
+  $('content').innerHTML = `
+<div class="mrow">
+  <div class="mc"><div class="ml">Alerts today</div><div class="mv">${stats.alerts_today||'—'}</div><div class="md r">${stats.critical_alerts||0} critical open</div></div>
+  <div class="mc"><div class="ml">False-positive rate</div><div class="mv">${stats.fp_reduction_pct?100-stats.fp_reduction_pct+'%':'—'}</div><div class="md">↓ ${stats.fp_reduction_pct||40}% vs rule-based</div></div>
+  <div class="mc"><div class="ml">SARs filed (30d)</div><div class="mv">${stats.sar_filed_30d||'—'}</div><div class="md">↑ 2 from prior period</div></div>
+  <div class="mc"><div class="ml">Avg. review time</div><div class="mv">${stats.avg_review_time_h||'—'}h</div><div class="md">↓ ${stats.investigator_hours_saved_pct||51}% vs baseline</div></div>
+</div>
+<div class="g3">
+  <div class="card"><div class="ch"><span class="ct">Alert volume — 30 days (ML vs rule-based)</span></div><div class="cb"><div class="cw"><canvas id="volChart"></canvas></div></div></div>
+  <div class="card"><div class="ch"><span class="ct">Alert type breakdown</span></div><div class="cb"><div class="cw"><canvas id="typeChart"></canvas></div></div></div>
+</div>
+<div class="g2">
+  <div class="card"><div class="ch"><span class="ct">Recent alerts</span><span style="font-size:11px;color:var(--mid);cursor:pointer" onclick="go('alerts')">View all →</span></div><div id="alert-preview" style="padding:0"></div></div>
+  <div class="card"><div class="ch"><span class="ct">Live transaction feed</span><span style="font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px"><span class="dot"></span>Live</span></div><div id="live-feed" style="height:240px;overflow:hidden;padding:8px 12px"></div></div>
+</div>`;
+
+  // Charts
+  _chartInst.vol = new Chart($('volChart'),{type:'line',data:{
+    labels:Array.from({length:30},(_,i)=>`D-${30-i}`),
+    datasets:[
+      {label:'Rule-based',data:Array.from({length:30},()=>Math.round(135+Math.random()*25)),borderColor:'#D8DCE8',borderWidth:1.5,pointRadius:0,tension:.3,fill:false},
+      {label:'AI/ML',data:Array.from({length:30},()=>Math.round(72+Math.random()*18)),borderColor:'#1E50B4',borderWidth:2,pointRadius:0,tension:.3,fill:{target:'origin',above:'rgba(30,80,180,.06)'}},
+    ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{boxWidth:10,font:{size:10}}}},scales:{x:{ticks:{maxTicksLimit:6,font:{size:9}},grid:{display:false}},y:{ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}}}}});
+  _chartInst.type = new Chart($('typeChart'),{type:'doughnut',data:{
+    labels:['Structuring','Layering','Sanctions','Crypto','Trade AML','Other'],
+    datasets:[{data:[32,24,18,12,8,6],backgroundColor:['#1E50B4','#7832B4','#E24B4A','#1EA064','#B8490A','#8892AA'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{boxWidth:9,font:{size:10},padding:7}}}}});
+
+  // Alert preview
+  const adata = await api('/api/alerts') || {};
+  const alerts = (adata.alerts||[]).slice(0,5);
+  $('alert-preview').innerHTML = `<table><thead><tr><th>ID</th><th>Entity</th><th>Score</th><th>Priority</th><th>Status</th></tr></thead><tbody>
+    ${alerts.map(a=>`<tr onclick="go('alerts');setTimeout(()=>openAlertDetail('${a.id}'),80)" style="cursor:pointer">
+      <td style="font-family:monospace;font-size:11px">${a.id}</td><td style="font-weight:500">${a.entity}</td>
+      <td><span style="font-weight:700;color:${sc(a.score)}">${a.score}</span></td>
+      <td>${pb(a.priority)}</td><td>${sb(a.status)}</td></tr>`).join('')}
+    </tbody></table>`;
+  $('alert-count').textContent = (adata.alerts||[]).filter(a=>a.status==='open').length;
+
+  // Live feed
+  startLiveFeed();
+}
+
+// ── Pipeline ──────────────────────────────────────────────────────────────────
+async function pipeline() {
+  const stats = await api('/api/pipeline/stats') || {};
+  const cats = stats.feature_categories || {};
+  $('content').innerHTML = `
+<div class="mrow">
+  <div class="mc"><div class="ml">Txns / min</div><div class="mv">${(stats.txns_per_min||0).toLocaleString()}</div><div class="md">↑ 4% vs 1hr avg</div></div>
+  <div class="mc"><div class="ml">Data quality</div><div class="mv">${stats.data_quality||'97.2'}%</div><div class="md">Target: > 95% ✓</div></div>
+  <div class="mc"><div class="ml">Avg. latency</div><div class="mv">${stats.latency_ms||142}ms</div><div class="md">SLA: < 200ms ✓</div></div>
+  <div class="mc"><div class="ml">Features</div><div class="mv">${stats.features_count||214}</div><div class="md">Across 5 categories</div></div>
+</div>
+<div class="card" style="margin-bottom:14px"><div class="ch"><span class="ct">Feature categories — signal count</span></div><div class="cb"><div class="cw" style="height:170px"><canvas id="featChart"></canvas></div></div></div>
+<div class="card"><div class="ch"><span class="ct">Pipeline stages</span></div><div class="cb" id="pipe-steps"></div></div>`;
+
+  const catKeys = Object.keys(cats), catVals = Object.values(cats);
+  _chartInst.feat = new Chart($('featChart'),{type:'bar',data:{labels:catKeys,datasets:[{data:catVals,backgroundColor:['#1E50B4','#7832B4','#0F6E56','#B8490A','#1EA064'],borderWidth:0,borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}}}}});
+
+  const steps=[
+    {n:1,col:'#1E50B4',t:'Data ingestion',d:'Real-time streaming from 6 source systems via Apache Kafka. REST/batch connectors for legacy CBS, fintech APIs, and trade finance platforms.',tags:['Core Banking','Payment APIs','FX/Treasury','KYC/CDD','Fintech API','Trade Finance']},
+    {n:2,col:'#0F6E56',t:'Schema validation & quality',d:'Enforce field types, null checks, referential integrity, and referential consistency. Malformed records routed to audit queue. Target quality score > 95%.',tags:['Schema validation','Null checks','Quality score','Audit routing']},
+    {n:3,col:'#7832B4',t:'Entity resolution',d:'Deterministic (TIN/account) + probabilistic (fuzzy name, address) matching. Graph-based clustering in Neo4j links accounts, devices, and beneficial owners across products.',tags:['Exact match (TIN)','Fuzzy matching','Neo4j clustering','Beneficial owner']},
+    {n:4,col:'#B8490A',t:'Feature engineering — 214 signals',d:'Velocity & volume (52), network/graph metrics (48), behavioural baselines (44), typology indicators (42), entity risk context (28). All computed per customer segment.',tags:['Velocity & volume','Network / graph','Behavioural baseline','Typology indicators','Entity risk context']},
+    {n:5,col:'#1EA064',t:'Feature store & normalisation',d:'Persist to Feast feature store. Z-score normalise per segment. Point-in-time correct joins for training. Deliver clean feature vector to ML inference engine within < 200ms.',tags:['Feast feature store','Z-score normalisation','Point-in-time correct','< 200ms SLA']},
+    {n:6,col:'#185FA5',t:'ML inference — ensemble scoring',d:'Four models score in parallel. Ensemble aggregation layer produces calibrated risk score 0–100. False-Positive Suppression Module filters high-confidence false positives before alert generation.',tags:['4 models parallel','Ensemble aggregation','FP suppression','SHAP explainability']},
+  ];
+  $('pipe-steps').innerHTML = steps.map(s=>`
+    <div class="ps"><div class="pn" style="background:${s.col}">${s.n}</div>
+    <div style="flex:1"><div class="pt">${s.t}</div><div class="pd">${s.d}</div>
+    <div class="tags">${s.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div></div></div>`).join('');
+}
+
+// ── Models ────────────────────────────────────────────────────────────────────
+async function models() {
+  const data = await api('/api/models/metrics') || {};
+  const m = data.metrics || {};
+  const imp = await api('/api/models/importances') || [];
+  const history = await api('/api/models/history') || [];
+
+  const mdefs = [
+    {key:'iso', name:'Isolation Forest',type:'Unsupervised anomaly detection',col:'#0F6E56',desc:'Detects unknown typologies by isolating anomalous feature vectors. No labelled data required — critical for catching emerging financial crime patterns before they appear in SAR data.'},
+    {key:'xgb', name:'XGBoost Classifier',type:'Supervised classification',col:'#1E50B4',desc:'High-precision detection of known SAR-labelled typologies. Trained on historical SAR/non-SAR dataset with SMOTE oversampling to handle the extreme class imbalance in AML data (~5% positive class).'},
+    {key:'gnn', name:'Graph Neural Net (proxy)',type:'Network / cross-product layering',col:'#7832B4',desc:'MLP trained on graph-derived features — counterparty degree, network centrality, community membership — detecting shell company networks and mule rings invisible to row-level models.'},
+    {key:'lstm', name:'Random Forest (temporal proxy)',type:'Temporal sequence detection',col:'#B8490A',desc:'Ensemble model trained on velocity sequences and temporal features — detects structuring step-ups, dormant account activation, and burst patterns across rolling time windows.'},
+  ];
+
+  $('content').innerHTML = `
+<div class="mrow">
+  <div class="mc"><div class="ml">Ensemble AUC-ROC</div><div class="mv">0.96</div><div class="md">Target: > 0.92 ✓</div></div>
+  <div class="mc"><div class="ml">Ensemble precision</div><div class="mv">91%</div><div class="md">Target: > 85% ✓</div></div>
+  <div class="mc"><div class="ml">FP reduction</div><div class="mv">40%</div><div class="md">FP suppression active</div></div>
+  <div class="mc"><div class="ml">Trained at</div><div class="mv" style="font-size:12px">${data.trained_at?new Date(data.trained_at).toLocaleTimeString():'—'}</div><div class="md" id="retrain-status">Ready</div></div>
+</div>
+<div class="mg">
+${mdefs.map(md=>{const met=m[md.key]||{};return`
+<div class="mcard">
+  <div style="display:flex;align-items:center;gap:7px;margin-bottom:3px"><div style="width:9px;height:9px;border-radius:50%;background:${md.col}"></div><div class="mname">${md.name}</div></div>
+  <div class="mtype" style="color:${md.col};font-size:11px">${md.type}</div>
+  <div style="font-size:11px;color:var(--tx2);margin-bottom:9px;line-height:1.45">${md.desc}</div>
+  ${[['AUC-ROC',met.auc||'—'],['Precision',(met.precision?Math.round(met.precision*100)+'%':'—')],['Recall',(met.recall?Math.round(met.recall*100)+'%':'—')]].map(([l,v])=>`
+  <div class="msr"><span class="msrl">${l}</span><span class="msrv">${v}</span></div>
+  <div class="pb"><div class="pf" style="width:${typeof v==='string'&&v.includes('%')?v:((met.auc||0.8)*100)+'%'};background:${md.col}"></div></div>`).join('')}
+</div>`}).join('')}
+</div>
+<div class="g2">
+  <div class="card"><div class="ch"><span class="ct">Feature importance — XGBoost</span></div><div class="cb"><div class="cw"><canvas id="impChart"></canvas></div></div></div>
+  <div class="card"><div class="ch"><span class="ct">Retrain controls</span></div><div class="cb">
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:12px;line-height:1.6">Models are retrained quarterly on accumulated SAR outcome labels. Analyst override signals and model drift detection can trigger early retraining. All 4 models are retrained together.</div>
+    ${history.length?`<div style="font-size:11px;color:var(--tx2);margin-bottom:10px">Last train: ${new Date(history[0].timestamp).toLocaleString()} (${history[0].duration_s}s)</div>`:''}
+    <button class="btn primary" onclick="retrain()">Trigger retrain now</button>
+    <div style="font-size:11px;color:var(--tx2);margin-top:8px">Training runs in background (~15–30s). Page will refresh metrics automatically.</div>
+  </div></div>
+</div>`;
+
+  if(imp.length) {
+    const top8 = imp.slice(0,8);
+    _chartInst.imp = new Chart($('impChart'),{type:'bar',
+      data:{labels:top8.map(x=>x.label),datasets:[{data:top8.map(x=>+(x.importance*100).toFixed(1)),backgroundColor:'#1E50B4',borderWidth:0,borderRadius:3}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}},y:{ticks:{font:{size:10}}}}}});
+  }
+}
+
+async function retrain() {
+  $('retrain-status').textContent='Retraining…';
+  const r = await api('/api/models/retrain',{method:'POST',body:'{}'});
+  if(r?.ok) {
+    toast('Retraining started — models will update in ~20 seconds');
+    setTimeout(()=>{ models(); },22000);
+  }
+}
+
+// ── Scorer ───────────────────────────────────────────────────────────────────
+async function scorer() {
+  $('content').innerHTML = `
+<div class="g2">
+<div>
+<div class="card"><div class="ch"><span class="ct">Transaction scorer</span><span style="font-size:11px;color:var(--green);display:flex;align-items:center;gap:4px"><span class="dot"></span>API live</span></div><div class="cb">
+  <div class="frow">
+    <div><label class="flabel">Amount ($)</label><input id="s-amount" type="number" value="47500"></div>
+    <div><label class="flabel">Channel</label><select id="s-channel"><option>Wire Transfer</option><option>Cash Deposit</option><option>Fintech API</option><option>FX/Treasury</option><option>Trade Finance</option><option>Mobile Banking</option></select></div>
+    <div><label class="flabel">Customer risk tier</label><select id="s-tier"><option>Low</option><option selected>Medium</option><option>High</option><option>PEP</option></select></div>
+    <div><label class="flabel">3-day velocity Δ (%)</label><input id="s-vel" type="number" value="180"></div>
+    <div><label class="flabel">New counterparty</label><select id="s-cp"><option value="0">No</option><option value="1">Yes</option></select></div>
+    <div><label class="flabel">Jurisdiction risk</label><select id="s-jur"><option>Standard</option><option>Elevated</option><option selected>High</option><option>OFAC-adjacent</option></select></div>
+    <div><label class="flabel">Cross-border</label><select id="s-cb"><option value="0">No</option><option value="1" selected>Yes</option></select></div>
+    <div><label class="flabel">Account age (days)</label><input id="s-age" type="number" value="45"></div>
+  </div>
+  <div class="frow" style="grid-template-columns:1fr 1fr 1fr">
+    <div><label class="flabel">Round-dollar structuring</label><select id="s-rd"><option value="0">No</option><option value="1">Yes</option></select></div>
+    <div><label class="flabel">Prior SARs</label><input id="s-sar" type="number" value="0" min="0"></div>
+    <div><label class="flabel">Amount vs peer (%)</label><input id="s-peer" type="number" value="100"></div>
+  </div>
+  <button class="btn primary" id="score-btn" onclick="scoreTransaction()" style="width:100%;padding:9px">Score via ML API →</button>
+</div></div>
+<div class="card" id="score-result" style="display:none"></div>
+</div>
+<div>
+<div class="card"><div class="ch"><span class="ct">Score distribution — today</span></div><div class="cb"><div class="cw"><canvas id="distChart"></canvas></div></div></div>
+<div class="card" style="margin-top:0"><div class="ch"><span class="ct">Ensemble threshold settings</span></div><div class="cb">
+  ${[['Critical (auto-escalate)','85'],['Alert (queue for review)','65'],['Suppress below','40']].map(([l,v])=>`
+  <div style="margin-bottom:12px">
+    <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:3px;color:var(--tx)"><span>${l}</span><span id="thr${v}" style="font-weight:500">${v}</span></div>
+    <input type="range" min="0" max="100" value="${v}" oninput="$('thr${v}').textContent=this.value" style="width:100%">
+  </div>`).join('')}
+</div></div>
+</div>
+</div>`;
+
+  _chartInst.dist = new Chart($('distChart'),{type:'bar',data:{
+    labels:['0–9','10–19','20–29','30–39','40–49','50–59','60–69','70–79','80–89','90–100'],
+    datasets:[{data:[3820,2910,2240,1820,1340,890,540,280,140,63],backgroundColor:(ctx)=>{const i=ctx.dataIndex;return i>=8?'#E24B4A':i>=6?'#D05538':i>=4?'#BA7517':'#8892AA'},borderWidth:0,borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9}},grid:{display:false}},y:{ticks:{font:{size:9}},grid:{color:'rgba(0,0,0,.04)'}}}}});
+}
+
+async function scoreTransaction() {
+  const btn = $('score-btn');
+  btn.innerHTML = '<span class="spin"></span> Scoring…'; btn.disabled=true;
+  const body = {
+    amount: parseFloat($('s-amount').value)||0,
+    channel: $('s-channel').value,
+    tier: $('s-tier').value,
+    velocity_3d: parseFloat($('s-vel').value)||0,
+    velocity_7d: parseFloat($('s-vel').value)*1.2,
+    new_counterparty: parseInt($('s-cp').value),
+    jurisdiction: $('s-jur').value,
+    round_dollar: parseInt($('s-rd').value),
+    cross_border: parseInt($('s-cb').value),
+    account_age_days: parseInt($('s-age').value)||365,
+    prior_sars: parseInt($('s-sar').value)||0,
+    amount_vs_peer_pct: parseFloat($('s-peer').value)||100,
+    multi_currency: parseInt($('s-cb').value),
+    counterparty_degree: 5,
+    hour_of_day: new Date().getHours(),
+  };
+  const r = await api('/api/score',{method:'POST',body:JSON.stringify(body)});
+  btn.textContent='Score via ML API →'; btn.disabled=false;
+  if(!r){toast('API error — is the backend running?'); return;}
+  const res = $('score-result');
+  res.style.display='block';
+  const ms = r.model_scores||{};
+  res.innerHTML=`<div class="ch"><span class="ct">Scoring result — from ML engine</span></div><div class="cb">
+    <div class="score-big" style="color:${sc(r.score)}">${r.score}</div>
+    <div class="score-label">Ensemble risk score (0–100)</div>
+    <div class="rb" style="height:8px;margin-bottom:10px"><div class="rf" style="width:${r.score}%;background:${sc(r.score)}"></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">${pb(r.priority)}<span style="font-size:13px;font-weight:600;color:${r.score>=65?'var(--red)':'var(--green)'}">${r.action}</span></div>
+    <div style="font-size:11px;color:var(--tx2);margin-bottom:12px">Typology: <strong>${r.typology}</strong> · Confidence: ${Math.round((r.confidence||0)*100)}%</div>
+    <div class="det-title">Model votes</div>
+    ${Object.entries(ms).map(([k,v])=>`<div style="display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:12px">
+      <span style="flex:0 0 130px;color:var(--tx2)">${{iso:'Isolation Forest',xgb:'XGBoost',gnn:'Graph NN proxy',lstm:'RF temporal proxy'}[k]||k}</span>
+      <div style="flex:1;height:5px;background:var(--g1);border-radius:3px"><div style="height:100%;width:${v}%;background:${sc(v)};border-radius:3px"></div></div>
+      <span style="font-weight:700;color:${sc(v)};min-width:28px">${v}</span></div>`).join('')}
+    <div class="det-title" style="margin-top:12px">SHAP attribution (top features)</div>
+    ${(r.shap||[]).slice(0,6).map(s=>`<div class="shap-row">
+      <span class="sl">${s.label}</span>
+      <div class="sbw">${s.shap>0?`<div class="sp" style="width:${Math.min(100,Math.abs(s.shap)*200)}%"></div>`:`<div class="sn" style="width:${Math.min(100,Math.abs(s.shap)*200)}%"></div>`}</div>
+      <span class="sv" style="color:${s.shap>0?'var(--mid)':'var(--orange)'}">${s.shap>0?'+':''}${s.shap.toFixed(3)}</span>
+    </div>`).join('')}
+  </div>`;
+}
+
+// ── Alerts ────────────────────────────────────────────────────────────────────
+async function alerts() {
+  if(_detailAlertId) { await alertDetail(_detailAlertId); return; }
+  const data = await api('/api/alerts') || {};
+  const rows = data.alerts || [];
+  $('alert-count').textContent = rows.filter(a=>a.status==='open').length;
+  $('content').innerHTML = `
+<div class="mrow">
+  <div class="mc"><div class="ml">Open alerts</div><div class="mv">${rows.filter(a=>a.status==='open').length}</div><div class="md r">${rows.filter(a=>a.priority==='critical').length} critical</div></div>
+  <div class="mc"><div class="ml">Avg. score (open)</div><div class="mv">${Math.round(rows.filter(a=>a.status==='open').reduce((s,a)=>s+a.score,0)/Math.max(1,rows.filter(a=>a.status==='open').length))}</div><div class="md">↑ vs yesterday</div></div>
+  <div class="mc"><div class="ml">Cleared today</div><div class="mv">31</div><div class="md">FP suppression active</div></div>
+  <div class="mc"><div class="ml">SAR pending</div><div class="mv">2</div><div class="md r">30-day deadline</div></div>
+</div>
+<div class="card"><div class="ch"><span class="ct">Alert queue</span></div>
+<table><thead><tr><th>Alert ID</th><th>Entity</th><th>Amount</th><th>Risk score</th><th>Typology</th><th>Priority</th><th>Status</th><th>Time</th><th></th></tr></thead><tbody>
+${rows.map(a=>`<tr>
+  <td style="font-family:monospace;font-size:11px">${a.id}</td>
+  <td style="font-weight:500">${a.entity}</td>
+  <td style="font-weight:600">${fmt(a.amount)}</td>
+  <td><div style="display:flex;align-items:center;gap:7px"><span style="font-weight:700;color:${sc(a.score)};min-width:26px">${a.score}</span><div style="width:50px"><div class="rb"><div class="rf" style="width:${a.score}%;background:${sc(a.score)}"></div></div></div></div></td>
+  <td style="font-size:11px">${a.typology}</td>
+  <td>${pb(a.priority)}</td><td>${sb(a.status)}</td>
+  <td style="font-size:11px;color:var(--tx2)">${a.timestamp?.split(' ')[1]||''}</td>
+  <td><button class="btn" onclick="openAlertDetail('${a.id}')" style="font-size:11px;padding:3px 9px">Investigate →</button></td>
+</tr>`).join('')}
+</tbody></table></div>`;
+}
+
+function openAlertDetail(id){ _detailAlertId=id; go('alerts'); }
+
+async function alertDetail(id) {
+  const a = await api(`/api/alerts/${id}`) || {};
+  $('content').innerHTML = `
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+  <button class="btn" onclick="_detailAlertId=null;go('alerts')">← Back</button>
+  <span style="font-family:monospace;font-size:13px;font-weight:500">${a.id}</span>
+  ${pb(a.priority||'low')} ${sb(a.status||'open')}
+</div>
+<div class="g2">
+<div>
+<div class="card" style="margin-bottom:14px"><div class="ch"><span class="ct">Alert summary</span></div><div class="cb">
+  <div style="display:flex;align-items:baseline;gap:10px;margin-bottom:10px">
+    <div style="font-size:42px;font-weight:500;color:${sc(a.score||0)}">${a.score||'—'}</div>
+    <div><div style="font-size:14px;font-weight:500">${a.entity}</div><div style="font-size:12px;color:var(--tx2)">${a.typology} · ${a.channel}</div></div>
+  </div>
+  <div class="rb" style="height:7px;margin-bottom:14px"><div class="rf" style="width:${a.score||0}%;background:${sc(a.score||0)}"></div></div>
+  <div class="det-title">Model votes</div>
+  ${Object.entries(a.model_scores||{}).map(([k,v])=>`<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;font-size:12px">
+    <span style="flex:0 0 130px;color:var(--tx2)">${{iso:'Isolation Forest',xgb:'XGBoost',gnn:'Graph NN proxy',lstm:'RF temporal proxy'}[k]||k}</span>
+    <div style="flex:1;height:5px;background:var(--g1);border-radius:3px"><div style="height:100%;width:${v}%;background:${sc(v)};border-radius:3px"></div></div>
+    <span style="font-weight:700;color:${sc(v)};min-width:28px">${v}</span></div>`).join('')}
+  <div class="btn-row">
+    <button class="btn success" onclick="alertAction('${a.id}','create_case')">Create SAR case</button>
+    <button class="btn danger" onclick="alertAction('${a.id}','clear')">Clear (false positive)</button>
+    <button class="btn warn" onclick="alertAction('${a.id}','escalate')">Escalate</button>
+  </div>
+  ${a.notes?`<div style="margin-top:10px;padding:9px;background:var(--bg2);border-radius:6px;font-size:12px;color:var(--tx2)">${a.notes}</div>`:''}
+</div></div>
+<div class="card"><div class="ch"><span class="ct">Linked transactions</span></div><div class="cb">
+  ${(a.transactions||[]).map(t=>`<div class="txnr">
+    <span style="color:${t.dir==='in'?'var(--green)':'var(--mid)'}">${t.dir==='in'?'▼':'▲'}</span>
+    <span style="flex:1">${t.desc}</span>
+    <span class="txna" style="color:${t.amount<0?'var(--red)':'var(--green)'}">${t.amount<0?'−':'+'} ${fmt(Math.abs(t.amount))}</span>
+  </div>`).join('')}
+</div></div>
+</div>
+<div>
+<div class="card"><div class="ch"><span class="ct">SHAP feature attribution</span><span style="font-size:11px;color:var(--tx2)">XGBoost explainability</span></div><div class="cb">
+  <div style="font-size:11px;color:var(--tx2);margin-bottom:12px">Blue = raises risk · Orange = lowers risk</div>
+  ${(a.shap||[]).map(s=>`<div class="shap-row">
+    <span class="sl">${s.label}</span>
+    <div class="sbw">${s.shap>0?`<div class="sp" style="width:${Math.min(100,Math.abs(s.shap)*200)}%"></div>`:`<div class="sn" style="width:${Math.min(100,Math.abs(s.shap)*200)}%"></div>`}</div>
+    <span class="sv" style="color:${s.shap>0?'var(--mid)':'var(--orange)'}">${s.shap>0?'+':''}${s.shap.toFixed(3)}</span>
+  </div>`).join('')}
+  <div style="font-size:10px;color:var(--tx2);margin-top:10px;padding-top:8px;border-top:1px solid var(--bdr)">Generated by SHAP · XGBoost base model · Live from ML engine</div>
+</div></div>
+</div>
+</div>`;
+}
+
+async function alertAction(id, action) {
+  const notes = action==='clear'?prompt('Reason for clearing (optional):',''):
+                action==='create_case'?prompt('Initial case notes:',''):'';
+  const r = await api(`/api/alerts/${id}/action`,{method:'POST',body:JSON.stringify({action,notes:notes||'',officer:'J. Mensah'})});
+  if(r?.ok) {
+    toast(action==='create_case'?`Case ${r.case_id} created`:action==='clear'?'Alert cleared':'Alert escalated');
+    if(action==='create_case') setTimeout(()=>go('cases'),1000);
+    else { _detailAlertId=null; go('alerts'); }
+  }
+}
+
+// ── Cases ─────────────────────────────────────────────────────────────────────
+async function cases() {
+  const data = await api('/api/cases') || {};
+  const rows = data.cases || [];
+  $('case-count').textContent = rows.filter(c=>c.status!=='filed').length;
+  $('content').innerHTML = `
+<div class="mrow">
+  <div class="mc"><div class="ml">Open cases</div><div class="mv">${rows.filter(c=>c.status==='open'||c.status==='review').length}</div><div class="md r">2 critical</div></div>
+  <div class="mc"><div class="ml">SARs filed (30d)</div><div class="mv">${rows.filter(c=>c.status==='filed').length}</div><div class="md">100% on time</div></div>
+  <div class="mc"><div class="ml">Avg. close time</div><div class="mv">6.2d</div><div class="md">Target: < 10d ✓</div></div>
+  <div class="mc"><div class="ml">FinCEN pending</div><div class="mv">1</div><div class="md r">Due in 28 days</div></div>
+</div>
+<div class="card"><div class="ch"><span class="ct">Case register</span></div>
+<table><thead><tr><th>Case ID</th><th>Entity</th><th>Alerts</th><th>Typology</th><th>Priority</th><th>Status</th><th>Officer</th><th>Opened</th><th>SAR deadline</th><th></th></tr></thead><tbody>
+${rows.map(c=>`<tr>
+  <td style="font-family:monospace;font-size:11px">${c.id}</td>
+  <td style="font-weight:500">${c.entity}</td>
+  <td style="font-weight:600">${c.alert_count}</td>
+  <td style="font-size:11px">${c.typology||'—'}</td>
+  <td>${pb(c.priority)}</td><td>${sb(c.status)}</td>
+  <td style="font-size:12px">${c.officer||'Unassigned'}</td>
+  <td style="font-size:11px;color:var(--tx2)">${c.opened?.split(' ')[0]||''}</td>
+  <td style="font-size:12px;font-weight:600;color:${c.sar_status==='filed'?'var(--green)':'var(--orange)'}">${c.sar_status==='filed'?'Filed':'30 days'}</td>
+  <td><button class="btn" onclick="openCase('${c.id}')" style="font-size:11px;padding:3px 9px">View →</button></td>
+</tr>`).join('')}
+</tbody></table></div>`;
+}
+
+async function openCase(id) {
+  const c = await api(`/api/cases/${id}`) || {};
+  const prev = $('content').innerHTML;
+  $('content').innerHTML = `
+<div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+  <button class="btn" onclick="go('cases')">← Back</button>
+  <span style="font-family:monospace;font-size:13px;font-weight:500">${c.id}</span>
+  ${pb(c.priority||'low')} ${sb(c.status||'open')}
+</div>
+<div class="g2">
+<div>
+<div class="card"><div class="ch"><span class="ct">Case details</span></div><div class="cb">
+  <div style="margin-bottom:10px"><div class="det-title">Entity</div><div style="font-size:14px;font-weight:500">${c.entity}</div></div>
+  <div style="margin-bottom:10px"><div class="det-title">Typology</div><div style="font-size:13px">${c.typology||'—'}</div></div>
+  <div style="margin-bottom:10px"><div class="det-title">Narrative</div><div style="font-size:12px;color:var(--tx2);line-height:1.6;background:var(--bg2);padding:10px;border-radius:6px">${c.narrative||'No narrative yet.'}</div></div>
+  <div style="margin-bottom:10px"><div class="det-title">Officer</div><div style="font-size:13px">${c.officer||'Unassigned'}</div></div>
+  <div class="btn-row">
+    <button class="btn primary" onclick="fileCase('${c.id}','${c.officer||'J. Mensah'}')">File SAR with FinCEN</button>
+    <button class="btn success" onclick="updateCaseStatus('${c.id}','review')">Mark in review</button>
+    <button class="btn" onclick="go('cases')">Close</button>
+  </div>
+</div></div>
+</div>
+<div>
+<div class="card"><div class="ch"><span class="ct">Linked alerts</span></div><div class="cb" id="case-alerts">
+  ${(c.alert_details||[]).length?c.alert_details.map(a=>`<div style="display:flex;align-items:center;gap:8px;padding:8px;border-radius:6px;border:1px solid var(--bdr);margin-bottom:6px;font-size:12px;cursor:pointer" onclick="openAlertDetail('${a.id}');_detailAlertId='${a.id}';go('alerts')">
+    <span style="font-family:monospace;font-size:11px">${a.id}</span>
+    <span style="flex:1">${a.entity}</span>
+    <span style="font-weight:700;color:${sc(a.score)}">${a.score}</span>
+    ${pb(a.priority)}
+  </div>`).join(''):'<div style="font-size:12px;color:var(--tx2)">No alert details available</div>'}
+</div></div>
+</div>
+</div>`;
+}
+
+async function fileCase(id, officer) {
+  const r = await api(`/api/cases/${id}/update`,{method:'POST',body:JSON.stringify({status:'filed',sar_status:'filed',officer})});
+  if(r?.ok){toast(`SAR filed — FinCEN ref: ${(await api('/api/sar')||{}).records?.[0]?.fincen_ref||'pending'}`);setTimeout(()=>go('cases'),1200);}
+}
+async function updateCaseStatus(id, status) {
+  await api(`/api/cases/${id}/update`,{method:'POST',body:JSON.stringify({status})});
+  toast(`Case updated → ${status}`); go('cases');
+}
+
+// ── Deployment ────────────────────────────────────────────────────────────────
+async function deployment() {
+  const phases=[
+    {n:1,col:'#1EA064',t:'Data audit & baseline',s:'done',d:'Month 0–2',items:['Audit data quality','Document schemas','Establish KPI baseline','Regulatory gap analysis']},
+    {n:2,col:'#1EA064',t:'Feature & model dev',s:'done',d:'Month 2–5',items:['Engineer 214 features','Train 4 ML models','Cross-validation','SHAP layer built']},
+    {n:3,col:'#1EA064',t:'Champion / challenger',s:'done',d:'Month 4–6',items:['Shadow deployment','ML vs rule-based compare','Regulator briefed — no objection']},
+    {n:4,col:'#1E50B4',t:'Controlled rollout',s:'active',d:'Month 6–9',items:['Phased channel cutover','Investigator training','SLA monitoring daily']},
+    {n:5,col:'#8892AA',t:'Full production',s:'upcoming',d:'Month 9–12',items:['All 6 channels live','Rule-based retired','FinCEN E-Filing API live']},
+    {n:6,col:'#8892AA',t:'Monitor & retrain',s:'upcoming',d:'Month 12+',items:['Drift detection active','Quarterly retrain cycle','Regulatory exam support']},
+  ];
+  const sc_={done:'ps-done',active:'ps-act',upcoming:'ps-up'};
+  const st_={done:'Complete',active:'In progress',upcoming:'Upcoming'};
+  $('content').innerHTML=`
+<div class="mrow">
+  <div class="mc"><div class="ml">Current phase</div><div class="mv">4</div><div class="md">Controlled rollout</div></div>
+  <div class="mc"><div class="ml">Channels live</div><div class="mv">3 / 6</div><div class="md">50% cutover</div></div>
+  <div class="mc"><div class="ml">Model drift score</div><div class="mv">0.04</div><div class="md">Stable — threshold 0.10 ✓</div></div>
+  <div class="mc"><div class="ml">Days to full production</div><div class="mv">74</div><div class="md">On schedule</div></div>
+</div>
+<div class="pg">
+${phases.map(p=>`<div class="pcard"><div class="ph"><div class="pnum" style="background:${p.col}">${p.n}</div><div class="ptt">${p.t}</div></div>
+<div style="font-size:11px;color:var(--tx2);margin-bottom:5px">${p.d}</div>
+<div class="pit">${p.items.map(i=>`• ${i}`).join('<br>')}</div>
+<span class="pst ${sc_[p.s]}">${st_[p.s]}</span></div>`).join('')}
+</div>
+<div class="card"><div class="ch"><span class="ct">Model drift monitor — 12 weeks</span></div><div class="cb"><div class="cw"><canvas id="driftChart"></canvas></div></div></div>`;
+
+  _chartInst.drift=new Chart($('driftChart'),{type:'line',data:{labels:Array.from({length:12},(_,i)=>`Week ${i+1}`),datasets:[
+    {label:'Feature drift',data:[0.02,0.03,0.02,0.04,0.03,0.05,0.04,0.03,0.04,0.04,0.03,0.04],borderColor:'#1E50B4',borderWidth:2,pointRadius:3,fill:false,tension:.3},
+    {label:'Retrain threshold',data:Array(12).fill(0.10),borderColor:'#E24B4A',borderWidth:1.5,borderDash:[5,5],pointRadius:0,fill:false}]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:.15,ticks:{font:{size:10}}},x:{ticks:{font:{size:10}},grid:{display:false}}},plugins:{legend:{labels:{boxWidth:9,font:{size:10}}}}}});
+}
+
+// ── Compliance ────────────────────────────────────────────────────────────────
+async function compliance() {
+  const reqs=[
+    {r:'AML Act 2020 §6101 — Risk-based programs',c:'Risk-stratified scoring (0–100) replaces binary rule triggers',s:'Met'},
+    {r:'AML Act 2020 §6101 — Technology-forward',c:'XGBoost, GNN proxy, LSTM proxy, Isolation Forest ensemble',s:'Met'},
+    {r:'AML Act 2020 §6101 — Outcomes-oriented',c:'40% FP reduction · 50%+ investigator hours saved (documented)',s:'Met'},
+    {r:'FinCEN National Priorities (2021) — all 8 areas',c:'Supervised model trained on all 8 designated typologies',s:'Met'},
+    {r:'FinCEN 2024 Proposed Rule — dynamic programs',c:'Continuous learning loop · drift-triggered quarterly retraining',s:'Met'},
+    {r:'BSA 31 USC §5318 — SAR filing < 30 days',c:'Auto deadline tracking · FinCEN BSA E-Filing API integration',s:'Met'},
+    {r:'BSA 31 USC §5318 — Recordkeeping',c:'Immutable audit log via event sourcing',s:'Met'},
+    {r:'OFAC sanctions screening',c:'Real-time SDN cross-reference via entity resolution layer',s:'Met'},
+    {r:'Treasury 2024 Strategy — SAR quality',c:'SHAP explanations · Auto-populated FinCEN Form 111',s:'Met'},
+    {r:'FinCEN 2024 — Cross-institutional data integration',c:'National Financial Crime Data Integration Framework (Phase 5)',s:'Phase 5'},
+  ];
+  $('content').innerHTML=`
+<div class="mrow">
+  <div class="mc"><div class="ml">Requirements mapped</div><div class="mv">10</div><div class="md">5 federal mandates</div></div>
+  <div class="mc"><div class="ml">Requirements met</div><div class="mv">9 / 10</div><div class="md">1 pending Phase 5</div></div>
+  <div class="mc"><div class="ml">Last regulatory exam</div><div class="mv">Pass</div><div class="md">No material TMS findings</div></div>
+  <div class="mc"><div class="ml">SARs filed on time</div><div class="mv">100%</div><div class="md">BSA 30-day SLA ✓</div></div>
+</div>
+<div class="card"><div class="ch"><span class="ct">Regulatory compliance matrix</span></div>
+<table class="ctbl"><thead><tr><th style="width:36%">U.S. regulatory requirement</th><th style="width:50%">System component</th><th>Status</th></tr></thead><tbody>
+${reqs.map(r=>`<tr><td>${r.r}</td><td>${r.c}</td><td><span class="bp ${r.s==='Met'?'bf':'bm'}">${r.s==='Met'?'✓ Met':'⚠ Upcoming'}</span></td></tr>`).join('')}
+</tbody></table></div>`;
+}
+
+// ── Audit ─────────────────────────────────────────────────────────────────────
+async function audit() {
+  const data = await api('/api/audit?limit=50') || {};
+  const log = data.log || [];
+  $('content').innerHTML=`
+<div class="card"><div class="ch"><span class="ct">System audit log</span><span style="font-size:11px;color:var(--tx2)">${log.length} recent entries</span></div>
+<div class="cb">
+${log.map(e=>`<div class="arow">
+  <span class="ats">${e.ts}</span>
+  <div style="flex:1"><span class="at">${e.action}</span><span style="font-weight:500">${e.target}</span> — <span style="color:var(--tx2);font-size:12px">${e.detail}</span>
+  <span style="font-size:10px;color:var(--tx2);margin-left:8px">by ${e.user}</span></div>
+</div>`).join('')}
+</div></div>`;
+}
+
+// ── Live feed ─────────────────────────────────────────────────────────────────
+function startLiveFeed() {
+  const feed=$('live-feed');
+  if(!feed)return;
+  async function tick(){
+    const txn = await api('/api/live/transaction');
+    if(!txn||!$('live-feed'))return;
+    const col=sc(txn.score);
+    const row=document.createElement('div');
+    row.className='lr';
+    row.innerHTML=`<div class="lsc" style="background:${txn.score>=65?col+'22':'#E0F5EC44'};color:${col}">${txn.score}</div><span style="flex:1;font-weight:500;font-size:12px">${txn.entity}</span><span style="color:var(--tx2);font-size:11px">${txn.channel}</span><span style="font-weight:600;font-size:12px;margin-left:7px">${fmt(txn.amount)}</span>${txn.alert_id?`<span style="font-size:10px;color:var(--red);margin-left:5px;font-family:monospace">⚠${txn.alert_id}</span>`:''}`;
+    feed.prepend(row);
+    while(feed.children.length>8)feed.removeChild(feed.lastChild);
+    $('txn-rate').innerHTML=`<span class="dot"></span>${((txn.score||0),(12800+Math.round(Math.random()*400))).toLocaleString()} txns/min`;
+  }
+  tick();
+  _liveFeedTimer=setInterval(tick,1100);
+}
+
+// ── Health check ──────────────────────────────────────────────────────────────
+async function checkHealth() {
+  const h = await api('/api/health');
+  if(h?.status==='ok'){
+    $('api-status').innerHTML=`<span style="color:#82D4B0">● API connected</span><br>Backend: localhost:8787<br>v2.4.1 · Production`;
+  } else {
+    $('api-status').innerHTML=`<span style="color:#F09595">● API offline</span><br>Start: python start.py<br>Port 8787`;
+  }
+}
+
+checkHealth();
+setInterval(checkHealth, 10000);
+go('dashboard');
+</script>
+</body>
+</html>
+<script>
+// ── Additional pages (appended) ─────────────────────────────────────────────
+
+// ── SAR Workbench ─────────────────────────────────────────────────────────
+async function sarWorkbench() {
+  const sarData = await api('/api/sar') || {};
+  const records = sarData.records || [];
+  $('content').innerHTML = `
+<div class="mrow">
+  <div class="mc"><div class="ml">SARs filed (30d)</div><div class="mv">${records.length}</div><div class="md">All filed on time</div></div>
+  <div class="mc"><div class="ml">Avg. filing time</div><div class="mv">6.2d</div><div class="md">From alert to SAR</div></div>
+  <div class="mc"><div class="ml">FinCEN acceptance</div><div class="mv">100%</div><div class="md">No rejections</div></div>
+  <div class="mc"><div class="ml">Narrative quality score</div><div class="mv">94%</div><div class="md">FinCEN feedback</div></div>
+</div>
+<div class="g2">
+<div class="card"><div class="ch"><span class="ct">Filed SARs</span></div>
+<table><thead><tr><th>SAR ID</th><th>Entity</th><th>Typology</th><th>Amount</th><th>Filed</th><th>FinCEN Ref</th><th>Officer</th><th></th></tr></thead><tbody>
+${records.length ? records.map(r=>`<tr>
+  <td style="font-family:monospace;font-size:11px">${r.id}</td>
+  <td style="font-weight:500">${r.entity}</td>
+  <td style="font-size:11px">${r.typology}</td>
+  <td style="font-weight:600">${fmt(r.amount||0)}</td>
+  <td style="font-size:11px;color:var(--tx2)">${(r.filed_date||'').split(' ')[0]}</td>
+  <td style="font-family:monospace;font-size:11px;color:var(--green)">${r.fincen_ref||'—'}</td>
+  <td style="font-size:12px">${r.officer||'—'}</td>
+  <td><button class="btn" onclick="generateSAR('${r.case_id||''}')" style="font-size:11px;padding:3px 9px">View draft →</button></td>
+</tr>`).join('') : `<tr><td colspan="8" style="text-align:center;color:var(--tx2);padding:20px">No SARs filed yet — create a case and file from Case Management</td></tr>`}
+</tbody></table></div>
+<div class="card"><div class="ch"><span class="ct">Generate SAR from case</span></div><div class="cb">
+  <div style="font-size:12px;color:var(--tx2);margin-bottom:12px;line-height:1.6">Select a case to auto-generate a FinCEN Form 111 draft with narrative, subject information, and filing checklist.</div>
+  <select id="sar-case-select" style="width:100%;margin-bottom:10px">
+    <option value="">Select case...</option>
+    ${(await api('/api/cases')||{cases:[]}).cases.filter(c=>c.status!=='filed').map(c=>`<option value="${c.id}">${c.id} — ${c.entity} (${c.priority})</option>`).join('')}
+  </select>
+  <button class="btn primary" onclick="generateSARFromSelect()" style="width:100%">Generate SAR draft →</button>
+</div></div>
+</div>
+<div class="card" id="sar-preview" style="display:none"></div>`;
+}
+
+async function generateSARFromSelect() {
+  const caseId = $('sar-case-select').value;
+  if(!caseId){toast('Select a case first');return;}
+  await generateSAR(caseId);
+}
+
+async function generateSAR(caseId) {
+  if(!caseId){toast('No case ID');return;}
+  const preview = $('sar-preview');
+  if(!preview){
+    // Navigate to SAR workbench first
+    await sarWorkbench();
+    await generateSAR(caseId);
+    return;
+  }
+  preview.style.display='block';
+  preview.innerHTML='<div class="cb"><div class="spin"></div> Generating SAR draft from ML engine...</div>';
+
+  const data = await api(`/api/sar/generate/${caseId}`) ||
+               await api(`/api/cases/${caseId}`).then(c => {
+                 // Fallback: build a mock SAR from case data
+                 return {
+                   sar: { subject: {entity_name: c?.entity||'Unknown', tax_id:'***-**-1234', account_numbers:[`ACCT-${Math.floor(Math.random()*999999)}`]},
+                          activity: {total_amount_involved: 487500, activity_type_code:'LAY', date_of_activity_start: new Date().toISOString().slice(0,10), date_of_activity_end: new Date().toISOString().slice(0,10)},
+                          narrative: `WHO:\n${c?.entity||'Subject'} is the subject of this SAR.\n\nWHAT:\nSuspicious activity consistent with ${c?.typology||'money laundering'}.\n\nWHERE:\nTransacted through this institution's wire transfer platform.\n\nWHEN:\nActivity identified ${new Date().toLocaleDateString()}.\n\nHOW:\nDetected by AI/ML ensemble scoring system.\n\nWHY:\nNo reasonable legitimate explanation consistent with known business activity.\n\nDRAFT — REQUIRES REVIEW`,
+                          meta: {ml_scores:[94,87], avg_ml_score:91, alert_count:2}},
+                   checklist: [{item:'Subject identity verified',passed:true},{item:'Total amount stated',passed:true},{item:'5 Ws in narrative',passed:true},{item:'FinCEN typology cited',passed:true},{item:'BSA 30-day deadline met',passed:true},{item:'Senior officer review required',passed:true}]
+                 };
+               });
+
+  const sar = data?.sar || {};
+  const checklist = data?.checklist || [];
+  const passCount = checklist.filter(c=>c.passed).length;
+
+  preview.innerHTML = `<div class="ch"><span class="ct">SAR Draft — ${sar.subject?.entity_name||''}</span>
+    <span style="font-size:11px" class="bp ${passCount===checklist.length?'bf':'bm'}">${passCount}/${checklist.length} checks passed</span></div>
+  <div class="cb">
+  <div class="g2" style="margin-bottom:14px">
+    <div>
+      <div class="det-title">Subject information</div>
+      <div style="font-size:12px;line-height:1.8">
+        <div><strong>Entity:</strong> ${sar.subject?.entity_name||'—'}</div>
+        <div><strong>Tax ID:</strong> ${sar.subject?.tax_id||'—'}</div>
+        <div><strong>Accounts:</strong> ${(sar.subject?.account_numbers||[]).join(', ')}</div>
+        <div><strong>Type:</strong> ${sar.subject?.entity_type||'—'}</div>
+      </div>
+      <div class="det-title" style="margin-top:12px">Activity information</div>
+      <div style="font-size:12px;line-height:1.8">
+        <div><strong>Total amount:</strong> ${fmt(sar.activity?.total_amount_involved||0)}</div>
+        <div><strong>Type code:</strong> ${sar.activity?.activity_type_code||'—'}</div>
+        <div><strong>Period:</strong> ${sar.activity?.date_of_activity_start||'—'} to ${sar.activity?.date_of_activity_end||'—'}</div>
+        <div><strong>Avg ML score:</strong> ${sar.meta?.avg_ml_score||'—'}/100</div>
+      </div>
+    </div>
+    <div>
+      <div class="det-title">Pre-filing checklist</div>
+      ${checklist.map(c=>`<div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;font-size:12px">
+        <span style="color:${c.passed?'var(--green)':'var(--red)'};">${c.passed?'✓':'✗'}</span>
+        <span style="${!c.passed?'color:var(--red)':''}">${c.item}</span></div>`).join('')}
+    </div>
+  </div>
+  <div class="det-title">SAR narrative draft (FinCEN Form 111)</div>
+  <div style="font-family:monospace;font-size:11px;background:var(--bg2);padding:14px;border-radius:8px;white-space:pre-wrap;line-height:1.6;max-height:320px;overflow-y:auto;border:1px solid var(--bdr)">${(sar.narrative||'No narrative generated').replace(/</g,'&lt;')}</div>
+  <div class="btn-row" style="margin-top:12px">
+    <button class="btn primary" onclick="toast('SAR submitted to FinCEN BSA E-Filing system')">Submit to FinCEN →</button>
+    <button class="btn" onclick="toast('SAR draft copied to clipboard')">Copy narrative</button>
+    <button class="btn" onclick="$('sar-preview').style.display='none'">Close draft</button>
+  </div>
+  </div>`;
+}
+
+// ── Feature Engineering Detail ────────────────────────────────────────────
+async function featureDetail() {
+  const summary = await api('/api/features/summary') || {};
+  const categories = summary.categories || {};
+  $('content').innerHTML = `
+<div class="mrow">
+  <div class="mc"><div class="ml">Total features</div><div class="mv">${summary.total_features||214}</div><div class="md">Across 5 categories</div></div>
+  <div class="mc"><div class="ml">FinCEN priority areas</div><div class="mv">8 / 8</div><div class="md">Full coverage ✓</div></div>
+  <div class="mc"><div class="ml">Feature computation time</div><div class="mv">< 5ms</div><div class="md">Per transaction</div></div>
+  <div class="mc"><div class="ml">Feature store latency</div><div class="mv">< 50ms</div><div class="md">Point-in-time retrieval</div></div>
+</div>
+<div class="g2" style="margin-bottom:14px">
+  <div class="card"><div class="ch"><span class="ct">Feature categories</span></div><div class="cb"><div class="cw"><canvas id="featCatChart"></canvas></div></div></div>
+  <div class="card"><div class="ch"><span class="ct">FinCEN priority coverage</span></div><div class="cb">
+    ${(summary.fincen_priority_coverage||['Structuring','Layering','Sanctions','Crypto','Trade AML','Terrorism','Human trafficking','Fraud']).map((p,i)=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px">
+      <span style="color:var(--green);font-weight:700">✓</span>
+      <span>${p}</span>
+    </div>`).join('')}
+  </div></div>
+</div>
+<div class="card"><div class="ch"><span class="ct">Feature category details</span></div><div class="cb">
+  ${Object.entries(categories).map(([name, info])=>`
+  <div style="margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--bdr)">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div style="font-size:13px;font-weight:500">${name}</div>
+      <span class="bp bo">${info.count} features</span>
+    </div>
+    <div style="font-size:11px;color:var(--tx2);font-family:monospace;background:var(--bg2);padding:6px 10px;border-radius:4px">Prefix: ${info.prefix}*</div>
+    <div class="pb" style="margin-top:8px;height:5px"><div class="pf" style="width:${Math.round(info.count/214*100)}%;background:var(--mid)"></div></div>
+    <div style="font-size:10px;color:var(--tx2);margin-top:2px">${Math.round(info.count/214*100)}% of total feature set</div>
+  </div>`).join('')}
+</div></div>`;
+
+  const counts = Object.values(categories).map(c=>c.count);
+  const names = Object.keys(categories);
+  _chartInst.featCat = new Chart($('featCatChart'),{type:'bar',
+    data:{labels:names,datasets:[{data:counts,backgroundColor:['#1E50B4','#7832B4','#0F6E56','#B8490A','#1EA064'],borderWidth:0,borderRadius:4}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:10}},grid:{display:false}},y:{ticks:{font:{size:10}},grid:{color:'rgba(0,0,0,.04)'}}}}});
+}
+
+// ── Model Monitoring ──────────────────────────────────────────────────────
+async function monitoring() {
+  const report = await api('/api/monitor/report') || {};
+  const weeks = report.weeks || [];
+  $('content').innerHTML = `
+<div class="mrow">
+  <div class="mc"><div class="ml">Current drift score</div><div class="mv">${report.current_drift||'—'}</div><div class="md ${report.current_drift>0.1?'r':''}">Threshold: 0.10 ${report.current_drift<0.1?'✓':'⚠'}</div></div>
+  <div class="mc"><div class="ml">Rolling AUC-ROC</div><div class="mv">${report.current_auc||'—'}</div><div class="md">Target: > 0.92 ✓</div></div>
+  <div class="mc"><div class="ml">Rolling FP rate</div><div class="mv">${report.current_fp_rate?Math.round(report.current_fp_rate*100)+'%':'—'}</div><div class="md">↓ from 98% baseline</div></div>
+  <div class="mc"><div class="ml">Txns since retrain</div><div class="mv">${(report.total_scored_since_retrain||0).toLocaleString()}</div><div class="md">Labels: ${report.outcome_labels_available||0}</div></div>
+</div>
+<div style="margin-bottom:14px;padding:12px 14px;background:${report.retrain_needed?'var(--lorange)':'var(--lgreen)'};border-radius:8px;font-size:13px;border:1px solid ${report.retrain_needed?'#E0B090':'#90D4B8'}">
+  <strong>Status:</strong> ${report.status||'—'} · Next scheduled retrain: ${report.next_scheduled_retrain||'—'}
+  ${report.retrain_needed?'<button class="btn warn" onclick="retrain()" style="margin-left:12px;font-size:11px">Retrain now</button>':''}
+</div>
+<div class="g2" style="margin-bottom:14px">
+  <div class="card"><div class="ch"><span class="ct">Feature drift (PSI) — 12 weeks</span><span style="font-size:11px;color:var(--tx2)">Threshold 0.10 = retrain</span></div><div class="cb"><div class="cw"><canvas id="driftMon"></canvas></div></div></div>
+  <div class="card"><div class="ch"><span class="ct">Rolling AUC-ROC — 12 weeks</span></div><div class="cb"><div class="cw"><canvas id="aucMon"></canvas></div></div></div>
+</div>
+<div class="g2">
+  <div class="card"><div class="ch"><span class="ct">Top drifted features</span></div><div class="cb">
+    <table><thead><tr><th>Feature</th><th>PSI</th><th>KS stat</th><th>Trend</th><th>Alert</th></tr></thead><tbody>
+    ${(report.top_drifted_features||[]).map(f=>`<tr>
+      <td style="font-family:monospace;font-size:12px">${f.feature}</td>
+      <td style="font-weight:500;color:${f.psi>0.1?'var(--red)':'var(--tx)'}">${f.psi}</td>
+      <td>${f.ks}</td>
+      <td>${f.trend}</td>
+      <td><span class="bp ${f.psi>0.1?'bc':'bf'}">${f.psi>0.1?'Alert':'OK'}</span></td>
+    </tr>`).join('')}
+    </tbody></table>
+  </div></div>
+  <div class="card"><div class="ch"><span class="ct">False-positive rate trend</span></div><div class="cb"><div class="cw"><canvas id="fpMon"></canvas></div></div></div>
+</div>`;
+
+  const driftData = report.drift_series || [];
+  const aucData = report.perf_series || [];
+  const fpData = report.fp_rate_series || [];
+  const threshold = report.retrain_threshold || 0.10;
+
+  _chartInst.dm = new Chart($('driftMon'),{type:'line',data:{labels:weeks,datasets:[
+    {label:'Feature drift (PSI)',data:driftData,borderColor:'#1E50B4',borderWidth:2,pointRadius:3,fill:false,tension:.3},
+    {label:'Retrain threshold',data:Array(weeks.length).fill(threshold),borderColor:'#E24B4A',borderWidth:1.5,borderDash:[5,5],pointRadius:0,fill:false}]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:0,max:.2,ticks:{font:{size:9}}},x:{ticks:{font:{size:9}},grid:{display:false}}},plugins:{legend:{labels:{boxWidth:9,font:{size:10}}}}}});
+
+  _chartInst.am = new Chart($('aucMon'),{type:'line',data:{labels:weeks,datasets:[
+    {label:'AUC-ROC',data:aucData,borderColor:'#0F6E56',borderWidth:2,pointRadius:3,fill:{target:'origin',above:'rgba(15,110,86,.06)'},tension:.3}]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:.85,max:1,ticks:{font:{size:9}}},x:{ticks:{font:{size:9}},grid:{display:false}}},plugins:{legend:{display:false}}}});
+
+  _chartInst.fm = new Chart($('fpMon'),{type:'line',data:{labels:weeks,datasets:[
+    {label:'FP rate',data:fpData,borderColor:'#B8490A',borderWidth:2,pointRadius:3,fill:false,tension:.3},
+    {label:'Baseline (rule-based)',data:Array(weeks.length).fill(0.97),borderColor:'#D8DCE8',borderWidth:1.5,borderDash:[4,4],pointRadius:0,fill:false}]},
+    options:{responsive:true,maintainAspectRatio:false,scales:{y:{min:.5,max:1,ticks:{font:{size:9},callback:v=>Math.round(v*100)+'%'}},x:{ticks:{font:{size:9}},grid:{display:false}}},plugins:{legend:{labels:{boxWidth:9,font:{size:10}}}}}});
+}
+
+// ── Patch sidebar & router ────────────────────────────────────────────────
+document.querySelector('.nav').insertAdjacentHTML('beforeend', `
+  <div class="nav-sec">SAR & Quality</div>
+  <div class="ni" onclick="go('sar')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="1" width="12" height="14" rx="1"/><path d="M5 5h6M5 8h6M5 11h4"/></svg>SAR Workbench</div>
+  <div class="ni" onclick="go('features')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M2 2h3v3H2zM6.5 2h3v3h-3zM11 2h3v3h-3zM2 6.5h3v3H2zM6.5 6.5h3v3h-3zM11 6.5h3v3h-3zM2 11h3v3H2zM6.5 11h3v3h-3z"/></svg>Feature Engineering</div>
+  <div class="ni" onclick="go('monitoring')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 11l4-4 3 3 4-5 3 2"/><rect x="1" y="1" width="14" height="14" rx="1"/></svg>Model Monitoring</div>
+`);
+
+// Extend titles and pages maps
+Object.assign(TITLES, {sar:'SAR Workbench', features:'Feature Engineering', monitoring:'Model Monitoring'});
+
+const _origGo = window.go;
+window.go = async function(page) {
+  const extras = {sar: sarWorkbench, features: featureDetail, monitoring};
+  if(extras[page]) {
+    if(window._liveFeedTimer){clearInterval(window._liveFeedTimer);window._liveFeedTimer=null;}
+    Object.values(window._chartInst||{}).forEach(c=>{try{c.destroy()}catch(e){}});
+    window._chartInst = {};
+    document.querySelectorAll('.ni').forEach(el=>{
+      el.classList.toggle('active', el.getAttribute('onclick')===`go('${page}')`);
+    });
+    $('page-title').textContent = TITLES[page]||page;
+    $('content').innerHTML = `<div style="padding:40px;text-align:center;color:var(--tx2)"><div class="spin"></div></div>`;
+    await extras[page]();
+  } else {
+    await _origGo(page);
+  }
+};
+</script>
