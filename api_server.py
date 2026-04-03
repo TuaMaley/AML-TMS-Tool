@@ -345,6 +345,15 @@ def run(port=None):
     print("  Initialising ML engine (training models)...")
     engine = get_engine()  # Train upfront
     print(f"  ML engine ready. Models: iso, xgb, gnn, lstm")
+    # Ingest the 1,000-row dataset now that ML engine is ready
+    try:
+        from data_store import _ingest_dataset, DATASET_INGESTION_DONE
+        import data_store as _ds
+        if not _ds.DATASET_INGESTION_DONE:
+            _ingest_dataset()
+            _ds.DATASET_INGESTION_DONE = True
+    except Exception as _e:
+        print(f"  [DataStore] Ingestion warning: {_e}", flush=True)
     # Confirm frontend file exists at startup
     print(f"  Frontend: embedded ({len(FRONTEND_HTML)} bytes)")
     print(f"  API health: /api/health")
