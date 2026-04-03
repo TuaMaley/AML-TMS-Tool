@@ -272,6 +272,7 @@ input:focus,select:focus{outline:2px solid var(--mid);outline-offset:1px}
     <div class="nav-sec">Investigation</div>
     <div class="ni" onclick="go('alerts')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 2a5 5 0 015 5v3l1 2H2l1-2V7a5 5 0 015-5z"/><path d="M6 13a2 2 0 004 0"/></svg>Alert Queue<span class="nbadge" id="alert-count">—</span></div>
     <div class="ni" onclick="go('cases')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="3" width="12" height="11" rx="1"/><path d="M5 3V2a1 1 0 011-1h4a1 1 0 011 1v1M5 8h6M5 11h4"/></svg>Case Management<span class="nbadge g" id="case-count">—</span></div>
+    <div class="ni" id="nav-supqueue" style="display:none" onclick="go('supqueue')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M8 1l2 4h5l-4 3 1.5 5L8 11l-4.5 2L5 8 1 5h5z"/></svg>Supervisor Queue<span class="nbadge r" id="supqueue-count" style="display:none"></span></div>
     <div class="ni" onclick="go('entity-graph')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><circle cx="8" cy="8" r="2"/><circle cx="2" cy="4" r="1.5"/><circle cx="14" cy="4" r="1.5"/><circle cx="2" cy="12" r="1.5"/><circle cx="14" cy="12" r="1.5"/><path d="M3.5 4.5L6 7M10 7l2.5-2.5M3.5 11.5L6 9M10 9l2.5 2.5"/></svg>Entity Graph</div>
     <div class="ni" onclick="go('documents')"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="2" y="1" width="12" height="14" rx="1"/><path d="M5 5h6M5 8h6M5 11h3"/><path d="M9 1v4h5"/></svg>Documents</div>
     <div class="nav-sec">SAR &amp; Quality</div>
@@ -335,7 +336,87 @@ const sc = s => s>=85?'#E24B4A':s>=70?'#D05538':s>=55?'#BA7517':'#1EA064';
 const pb = p => `<span class="bp ${({critical:'bc',high:'bh',medium:'bm',low:'bl'})[p]||'bl'}">${p}</span>`;
 const sb = s => `<span class="bp ${({open:'bo',review:'br',filed:'bf',cleared:'bx'})[s]||'bo'}">${s}</span>`;
 const fmt = n => '$'+(+n).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0});
-function toast(msg,dur=3000){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),dur)}
+function toast(msg,dur=3000,type=''){
+  const t=$('toast');
+  t.textContent=msg;
+  t.style.background = type==='error' ? 'var(--red)' : '';
+  t.classList.add('show');
+  setTimeout(()=>{t.classList.remove('show');t.style.background='';},dur);
+}
+
+async function refreshSupQueueBadge() {
+  if(!_userPerms.has('file_sar')) return;
+  try {
+    const q = await api('/api/supervisor/queue');
+    const total = (q?.escalated_alerts?.length||0);
+    const badge = document.getElementById('supqueue-count');
+    if(badge){ badge.textContent=total; badge.style.display=total>0?'':'none'; }
+    setTimeout(refreshSupQueueBadge, 30000);
+  } catch(e) {}
+}
+
+async function supqueue() {
+  const q = await api('/api/supervisor/queue') || {};
+  const escalated = q.escalated_alerts || [];
+  const assigned  = q.assigned_alerts  || [];
+  $('content').innerHTML = `
+<div class="mrow">
+  <div class="mc"><div class="ml">Escalated alerts</div><div class="mv ${escalated.length?'r':''}">${escalated.length}</div><div class="md ${escalated.length?'r':''}">Analyst escalations pending</div></div>
+  <div class="mc"><div class="ml">Assigned to me</div><div class="mv">${assigned.length}</div><div class="md">Active workload</div></div>
+  <div class="mc"><div class="ml">My role</div><div class="mv">${_currentUser?.role||'—'}</div><div class="md">SAR filing authority</div></div>
+  <div class="mc"><div class="ml">Can file SAR</div><div class="mv" style="color:var(--green)">Yes</div><div class="md" style="color:var(--green)">FinCEN BSA e-filing</div></div>
+</div>
+${escalated.length===0 && assigned.length===0 ? `
+  <div class="card" style="padding:40px;text-align:center">
+    <div style="font-size:32px;margin-bottom:12px">✓</div>
+    <div style="font-size:14px;font-weight:500">Queue is clear</div>
+    <div style="font-size:13px;color:var(--tx2);margin-top:6px">No escalated alerts pending your review</div>
+  </div>` : ''}
+${escalated.length>0 ? `
+  <div class="card" style="margin-bottom:14px;border-top:3px solid var(--orange)">
+    <div class="ch"><span class="ct" style="color:var(--orange)">⚠ Escalated from Analysts — Action Required</span></div>
+    <table><thead><tr><th>Alert ID</th><th>Entity</th><th>Score</th><th>Typology</th><th>Amount</th><th>Escalated by</th><th>Reason</th><th>Date</th><th>Actions</th></tr></thead><tbody>
+    ${escalated.map(a=>`<tr style="background:var(--lred)">
+      <td style="font-family:monospace;font-size:11px;font-weight:600">${a.id}</td>
+      <td style="font-weight:500">${a.entity}</td>
+      <td style="font-weight:700;color:var(--red);font-size:15px">${a.score}</td>
+      <td style="font-size:11px">${a.typology||'—'}</td>
+      <td style="font-weight:500">$\${Number(a.amount||0).toLocaleString('en-US',{maximumFractionDigits:0})}</td>
+      <td style="font-size:12px">${a.escalated_by||'—'}</td>
+      <td style="font-size:11px;color:var(--tx2);max-width:160px;overflow:hidden;text-overflow:ellipsis">${a.escalation_notes||'—'}</td>
+      <td style="font-size:11px;color:var(--tx2)">${(a.escalated_at||'').split(' ')[0]||'—'}</td>
+      <td style="white-space:nowrap;display:flex;gap:4px;padding:8px 6px">
+        <button class="btn" style="font-size:10px;padding:2px 7px" onclick="_detailAlertId='${a.id}';go('alerts')">Review</button>
+        <button class="btn primary" style="font-size:10px;padding:2px 7px" onclick="showAssignDialog('${a.id}')">Assign</button>
+        <button class="btn success" style="font-size:10px;padding:2px 7px" onclick="sqTake('${a.id}')">Take it</button>
+      </td>
+    </tr>`).join('')}
+    </tbody></table>
+  </div>` : ''}
+${assigned.length>0 ? `
+  <div class="card" style="border-top:3px solid var(--blue)">
+    <div class="ch"><span class="ct">Assigned to Me</span><span style="font-size:11px;color:var(--tx2)">${assigned.length} active</span></div>
+    <table><thead><tr><th>Alert ID</th><th>Entity</th><th>Score</th><th>Typology</th><th>Amount</th><th>Status</th><th>Actions</th></tr></thead><tbody>
+    ${assigned.map(a=>`<tr>
+      <td style="font-family:monospace;font-size:11px">${a.id}</td>
+      <td style="font-weight:500">${a.entity}</td>
+      <td style="font-weight:700;color:${sc(a.score)}">${a.score}</td>
+      <td style="font-size:11px">${a.typology||'—'}</td>
+      <td style="font-weight:500">$\${Number(a.amount||0).toLocaleString('en-US',{maximumFractionDigits:0})}</td>
+      <td>${sb(a.status)}</td>
+      <td style="display:flex;gap:4px;padding:8px 6px">
+        <button class="btn" style="font-size:10px;padding:2px 7px" onclick="_detailAlertId='${a.id}';go('alerts')">Review →</button>
+        <button class="btn" style="font-size:10px;padding:2px 7px" onclick="showAssignDialog('${a.id}')">Reassign</button>
+      </td>
+    </tr>`).join('')}
+    </tbody></table>
+  </div>` : ''}`;
+  window.sqTake = async function(alertId){
+    await alertAction(alertId,'assign',{assignee:_currentUser?.name||''});
+    supqueue();
+  };
+  refreshSupQueueBadge();
+}
 
 async function api(path, opts={}) {
   try {
@@ -699,11 +780,17 @@ async function alertDetail(id) {
     <span style="flex:0 0 130px;color:var(--tx2)">${{iso:'Isolation Forest',xgb:'XGBoost',gnn:'Graph NN proxy',lstm:'RF temporal proxy'}[k]||k}</span>
     <div style="flex:1;height:5px;background:var(--g1);border-radius:3px"><div style="height:100%;width:${v}%;background:${sc(v)};border-radius:3px"></div></div>
     <span style="font-weight:700;color:${sc(v)};min-width:28px">${v}</span></div>`).join('')}
-  <div class="btn-row">
-    <button class="btn success" onclick="alertAction('${a.id}','create_case')">Create SAR case</button>
-    <button class="btn danger" onclick="alertAction('${a.id}','clear')">Clear (false positive)</button>
-    <button class="btn warn" onclick="alertAction('${a.id}','escalate')">Escalate</button>
+  <div class="btn-row" id="alert-action-btns">
+    ${_userPerms.has('create_case') ? `<button class="btn success" onclick="alertAction('${a.id}','create_case')">Create SAR case</button>` : ''}
+    ${_userPerms.has('clear_alert') ? `<button class="btn danger" onclick="alertAction('${a.id}','clear')">Clear (false positive)</button>` : ''}
+    ${!_userPerms.has('file_sar') && _userPerms.has('investigate_alert') ? `<button class="btn warn" onclick="showEscalateDialog('${a.id}')">↑ Escalate to supervisor</button>` : ''}
+    ${_userPerms.has('file_sar') && a.status==='escalated' ? `<button class="btn primary" onclick="showAssignDialog('${a.id}')">Assign to officer</button>` : ''}
+    ${_userPerms.has('file_sar') && a.status!=='escalated' ? `<button class="btn primary" onclick="showAssignDialog('${a.id}')">Assign</button>` : ''}
   </div>
+  ${a.escalated ? `<div style="margin-top:8px;padding:9px;background:var(--lred);border-radius:6px;font-size:12px">
+    <strong style="color:var(--red)">↑ Escalated</strong> by ${a.escalated_by||'analyst'} on ${(a.escalated_at||'').split(' ')[0]}
+    ${a.escalation_notes ? `· "${a.escalation_notes}"` : ''}
+  </div>` : ''}
   ${a.notes?`<div style="margin-top:10px;padding:9px;background:var(--bg2);border-radius:6px;font-size:12px;color:var(--tx2)">${a.notes}</div>`:''}
 </div></div>
 <div class="card"><div class="ch"><span class="ct">Linked transactions</span></div><div class="cb">
@@ -728,43 +815,190 @@ async function alertDetail(id) {
 </div>`;
 }
 
-async function alertAction(id, action) {
-  const notes = action==='clear'?prompt('Reason for clearing (optional):',''):
-                action==='create_case'?prompt('Initial case notes:',''):'';
-  const r = await api(`/api/alerts/${id}/action`,{method:'POST',body:JSON.stringify({action,notes:notes||'',officer:'J. Mensah'})});
+async function alertAction(id, action, extraBody={}) {
+  const officer = _currentUser?.name || 'Unknown';
+  const notes = action==='clear' ? prompt('Reason for clearing (false positive):','') :
+                action==='create_case' ? prompt('Initial case notes:','') : '';
+  const body  = {action, notes: notes||'', officer, ...extraBody};
+  const r = await api(`/api/alerts/${id}/action`,{method:'POST',body:JSON.stringify(body)});
   if(r?.ok) {
-    toast(action==='create_case'?`Case ${r.case_id} created`:action==='clear'?'Alert cleared':'Alert escalated');
-    if(action==='create_case') setTimeout(()=>go('cases'),1000);
-    else { _detailAlertId=null; go('alerts'); }
+    if(action==='create_case')    { toast(`Case ${r.case_id} created`); setTimeout(()=>go('cases'),1000); }
+    else if(action==='clear')     { toast('Alert cleared as false positive'); _detailAlertId=null; go('alerts'); }
+    else if(action==='escalate')  { toast('Alert escalated to supervisor queue'); _detailAlertId=null; go('alerts'); }
+    else if(action==='assign')    { toast(`Alert assigned to ${extraBody.assignee}`); alertDetail(id); }
+  } else if(r?.error) {
+    toast(r.error, 'error');
   }
+}
+
+async function showEscalateDialog(alertId) {
+  // Get supervisors list
+  const ud = await api('/api/users') || {};
+  const sups = (ud.users||[]).filter(u=>u.role==='supervisor'||u.role==='admin');
+  const opts = sups.map(u=>`<option value="${u.user_id}">${u.name} (${u.role})</option>`).join('');
+  const html = `
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center" id="esc-modal" onclick="if(event.target.id==='esc-modal')this.remove()">
+      <div style="background:var(--bg1);border-radius:12px;padding:24px;width:380px;box-shadow:0 20px 60px rgba(0,0,0,.4)">
+        <div style="font-size:14px;font-weight:600;margin-bottom:16px">Escalate to Supervisor</div>
+        <div style="margin-bottom:12px">
+          <label style="font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Assign to supervisor</label>
+          <select id="esc-sup" style="width:100%"><option value="">Any available supervisor</option>${opts}</select>
+        </div>
+        <div style="margin-bottom:16px">
+          <label style="font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Escalation notes <span style="color:var(--red)">*</span></label>
+          <textarea id="esc-notes" rows="3" style="width:100%;resize:vertical" placeholder="Describe why this alert needs supervisor review…"></textarea>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn" onclick="document.getElementById('esc-modal').remove()">Cancel</button>
+          <button class="btn warn" onclick="submitEscalate('${alertId}')">↑ Escalate</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function submitEscalate(alertId) {
+  const notes = document.getElementById('esc-notes')?.value?.trim();
+  const supId = document.getElementById('esc-sup')?.value;
+  if(!notes) { toast('Please add escalation notes', 'error'); return; }
+  document.getElementById('esc-modal')?.remove();
+  await alertAction(alertId, 'escalate', {escalate_to: supId||null, notes});
+}
+
+async function showAssignDialog(alertId) {
+  const ud = await api('/api/users') || {};
+  const users = (ud.users||[]).filter(u=>u.active!==false);
+  const opts  = users.map(u=>`<option value="${u.name}">${u.name} (${u.role})</option>`).join('');
+  const html = `
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center" id="asgn-modal" onclick="if(event.target.id==='asgn-modal')this.remove()">
+      <div style="background:var(--bg1);border-radius:12px;padding:24px;width:340px;box-shadow:0 20px 60px rgba(0,0,0,.4)">
+        <div style="font-size:14px;font-weight:600;margin-bottom:16px">Assign Alert to Officer</div>
+        <div style="margin-bottom:16px">
+          <label style="font-size:11px;color:var(--tx2);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:6px">Assign to</label>
+          <select id="asgn-user" style="width:100%"><option value="">Select officer…</option>${opts}</select>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn" onclick="document.getElementById('asgn-modal').remove()">Cancel</button>
+          <button class="btn primary" onclick="submitAssign('${alertId}')">Assign</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function submitAssign(alertId) {
+  const assignee = document.getElementById('asgn-user')?.value;
+  if(!assignee) { toast('Please select an officer', 'error'); return; }
+  document.getElementById('asgn-modal')?.remove();
+  await alertAction(alertId, 'assign', {assignee});
 }
 
 // ── Cases ─────────────────────────────────────────────────────────────────────
 async function cases() {
-  const data = await api('/api/cases') || {};
-  const rows = data.cases || [];
+  const [data, queueData] = await Promise.all([
+    api('/api/cases') || {},
+    _userPerms.has('file_sar') ? api('/api/supervisor/queue') : Promise.resolve(null),
+  ]);
+  const rows  = (data||{}).cases || [];
+  const queue = queueData || {};
+  const escalated = queue.escalated_alerts || [];
+  const assigned  = queue.assigned_alerts  || [];
   $('case-count').textContent = rows.filter(c=>c.status!=='filed').length;
+
+  const criticalOpen = rows.filter(c=>c.priority==='critical'&&c.status!=='filed').length;
+
   $('content').innerHTML = `
 <div class="mrow">
-  <div class="mc"><div class="ml">Open cases</div><div class="mv">${rows.filter(c=>c.status==='open'||c.status==='review').length}</div><div class="md r">2 critical</div></div>
-  <div class="mc"><div class="ml">SARs filed (30d)</div><div class="mv">${rows.filter(c=>c.status==='filed').length}</div><div class="md">100% on time</div></div>
-  <div class="mc"><div class="ml">Avg. close time</div><div class="mv">6.2d</div><div class="md">Target: < 10d ✓</div></div>
-  <div class="mc"><div class="ml">FinCEN pending</div><div class="mv">1</div><div class="md r">Due in 28 days</div></div>
+  <div class="mc"><div class="ml">Open cases</div><div class="mv">${rows.filter(c=>c.status==='open'||c.status==='review').length}</div><div class="md ${criticalOpen?'r':''}">${criticalOpen} critical open</div></div>
+  <div class="mc"><div class="ml">SARs filed (30d)</div><div class="mv">${rows.filter(c=>c.status==='filed').length}</div><div class="md">FinCEN BSA e-filing</div></div>
+  <div class="mc"><div class="ml">Escalated to me</div><div class="mv ${escalated.length?'r':''}">${escalated.length||0}</div><div class="md ${escalated.length?'r':''}">Awaiting supervisor review</div></div>
+  <div class="mc"><div class="ml">Assigned to me</div><div class="mv">${assigned.length||0}</div><div class="md">My active workload</div></div>
 </div>
-<div class="card"><div class="ch"><span class="ct">Case register</span></div>
-<table><thead><tr><th>Case ID</th><th>Entity</th><th>Alerts</th><th>Typology</th><th>Priority</th><th>Status</th><th>Officer</th><th>Opened</th><th>SAR deadline</th><th></th></tr></thead><tbody>
-${rows.map(c=>`<tr>
+
+${_userPerms.has('file_sar') && escalated.length > 0 ? `
+<div class="card" style="margin-bottom:14px;border-top:3px solid var(--orange)">
+  <div class="ch">
+    <span class="ct" style="color:var(--orange)">⚠ Escalation Queue — Requires Your Review</span>
+    <span style="font-size:11px;color:var(--tx2)">${escalated.length} alert${escalated.length!==1?'s':''} escalated from analysts</span>
+  </div>
+  <table><thead><tr><th>Alert ID</th><th>Entity</th><th>Score</th><th>Typology</th><th>Escalated by</th><th>Notes</th><th>Date</th><th></th></tr></thead><tbody>
+  ${escalated.map(a=>`<tr style="background:var(--lred)">
+    <td style="font-family:monospace;font-size:11px">${a.id}</td>
+    <td style="font-weight:500">${a.entity}</td>
+    <td style="font-weight:700;color:var(--red)">${a.score}</td>
+    <td style="font-size:11px">${a.typology||'—'}</td>
+    <td style="font-size:12px">${a.escalated_by||'—'}</td>
+    <td style="font-size:11px;color:var(--tx2);max-width:200px;overflow:hidden;text-overflow:ellipsis">${a.escalation_notes||''}</td>
+    <td style="font-size:11px;color:var(--tx2)">${(a.escalated_at||'').split(' ')[0]}</td>
+    <td style="display:flex;gap:4px">
+      <button class="btn" onclick="_detailAlertId='${a.id}';go('alerts')" style="font-size:10px;padding:2px 7px">View</button>
+      <button class="btn primary" style="font-size:10px;padding:2px 7px" onclick="showAssignDialog('${a.id}')">Assign</button>
+      <button class="btn success" style="font-size:10px;padding:2px 7px" onclick="takeCaseAlert('${a.id}')">Take it</button>
+    </td>
+  </tr>`).join('')}
+  </tbody></table>
+</div>` : ''}
+
+${_userPerms.has('file_sar') && assigned.length > 0 ? `
+<div class="card" style="margin-bottom:14px;border-top:3px solid var(--blue)">
+  <div class="ch">
+    <span class="ct">Assigned to me</span>
+    <span style="font-size:11px;color:var(--tx2)">${assigned.length} active</span>
+  </div>
+  <table><thead><tr><th>Alert ID</th><th>Entity</th><th>Score</th><th>Typology</th><th>Status</th><th></th></tr></thead><tbody>
+  ${assigned.map(a=>`<tr>
+    <td style="font-family:monospace;font-size:11px">${a.id}</td>
+    <td style="font-weight:500">${a.entity}</td>
+    <td style="font-weight:700;color:${sc(a.score)}">${a.score}</td>
+    <td style="font-size:11px">${a.typology||'—'}</td>
+    <td>${sb(a.status)}</td>
+    <td><button class="btn" onclick="_detailAlertId='${a.id}';go('alerts')" style="font-size:10px;padding:2px 7px">Review →</button></td>
+  </tr>`).join('')}
+  </tbody></table>
+</div>` : ''}
+
+<div class="card"><div class="ch"><span class="ct">All cases</span>
+  ${_userPerms.has('file_sar') ? `<div style="display:flex;gap:6px">
+    <button class="btn" onclick="filterCases('all')" id="cf-all" style="font-size:11px;padding:3px 9px;background:var(--blue);color:#fff">All</button>
+    <button class="btn" onclick="filterCases('open')" id="cf-open" style="font-size:11px;padding:3px 9px">Open</button>
+    <button class="btn" onclick="filterCases('filed')" id="cf-filed" style="font-size:11px;padding:3px 9px">Filed</button>
+    <button class="btn" onclick="filterCases('mine')" id="cf-mine" style="font-size:11px;padding:3px 9px">Mine</button>
+  </div>` : ''}
+</div>
+<table id="cases-table"><thead><tr><th>Case ID</th><th>Entity</th><th>Alerts</th><th>Typology</th><th>Priority</th><th>Status</th><th>Officer</th><th>Opened</th><th>SAR status</th><th></th></tr></thead><tbody id="cases-tbody">
+${rows.map(c=>`<tr data-status="${c.status}" data-officer="${c.officer||''}">
   <td style="font-family:monospace;font-size:11px">${c.id}</td>
   <td style="font-weight:500">${c.entity}</td>
   <td style="font-weight:600">${c.alert_count}</td>
   <td style="font-size:11px">${c.typology||'—'}</td>
-  <td>${pb(c.priority)}</td><td>${sb(c.status)}</td>
-  <td style="font-size:12px">${c.officer||'Unassigned'}</td>
+  <td>${pb(c.priority)}</td>
+  <td>${sb(c.status)}</td>
+  <td style="font-size:12px">${c.officer||'<span style="color:var(--tx2)">Unassigned</span>'}</td>
   <td style="font-size:11px;color:var(--tx2)">${c.opened?.split(' ')[0]||''}</td>
-  <td style="font-size:12px;font-weight:600;color:${c.sar_status==='filed'?'var(--green)':'var(--orange)'}">${c.sar_status==='filed'?'Filed':'30 days'}</td>
+  <td style="font-size:12px;font-weight:600;color:${c.sar_status==='filed'?'var(--green)':c.sar_status==='pending'?'var(--orange)':'var(--tx2)'}">${c.sar_status==='filed'?'✓ Filed':c.sar_status==='pending'?'Pending':'—'}</td>
   <td><button class="btn" onclick="openCase('${c.id}')" style="font-size:11px;padding:3px 9px">View →</button></td>
 </tr>`).join('')}
 </tbody></table></div>`;
+
+  window.filterCases = function(filter) {
+    const me = _currentUser?.name || '';
+    document.querySelectorAll('[id^=cf-]').forEach(b=>b.style.background='');
+    const btn = document.getElementById('cf-'+filter);
+    if(btn) btn.style.background='var(--blue)';
+    document.querySelectorAll('#cases-tbody tr').forEach(row=>{
+      const st = row.dataset.status, off = row.dataset.officer;
+      if(filter==='all')    row.style.display='';
+      else if(filter==='open')  row.style.display = (st==='open'||st==='review'||st==='escalated')?'':'none';
+      else if(filter==='filed') row.style.display = st==='filed'?'':'none';
+      else if(filter==='mine')  row.style.display = off===me?'':'none';
+    });
+  };
+}
+
+async function takeCaseAlert(alertId) {
+  const officer = _currentUser?.name || '';
+  await alertAction(alertId, 'assign', {assignee: officer});
+  await cases(); // refresh
 }
 
 async function openCase(id) {
@@ -784,8 +1018,11 @@ async function openCase(id) {
   <div style="margin-bottom:10px"><div class="det-title">Narrative</div><div style="font-size:12px;color:var(--tx2);line-height:1.6;background:var(--bg2);padding:10px;border-radius:6px">${c.narrative||'No narrative yet.'}</div></div>
   <div style="margin-bottom:10px"><div class="det-title">Officer</div><div style="font-size:13px">${c.officer||'Unassigned'}</div></div>
   <div class="btn-row">
-    <button class="btn primary" onclick="fileCase('${c.id}','${c.officer||'J. Mensah'}')">File SAR with FinCEN</button>
-    <button class="btn success" onclick="updateCaseStatus('${c.id}','review')">Mark in review</button>
+    ${_userPerms.has('file_sar') ?
+      `<button class="btn primary" onclick="fileCase('${c.id}')">📋 File SAR with FinCEN</button>` :
+      `<div style="font-size:11px;padding:7px 12px;background:var(--bg2);border-radius:6px;color:var(--tx2)">🔒 SAR filing requires supervisor or admin role</div>`}
+    ${_userPerms.has('update_case_status') ? `<button class="btn success" onclick="updateCaseStatus('${c.id}','review')">Mark in review</button>` : ''}
+    ${_userPerms.has('file_sar') ? `<button class="btn warn" onclick="showCaseAssignDialog('${c.id}')">Re-assign case</button>` : ''}
     <button class="btn" onclick="go('cases')">Close</button>
   </div>
 </div></div>
@@ -803,13 +1040,48 @@ async function openCase(id) {
 </div>`;
 }
 
-async function fileCase(id, officer) {
+async function fileCase(id) {
+  if(!_userPerms.has('file_sar')) { toast('Only supervisors and admins can file SARs', 'error'); return; }
+  if(!confirm('File SAR with FinCEN? This action is logged and cannot be undone.')) return;
+  const officer = _currentUser?.name || 'Supervisor';
   const r = await api(`/api/cases/${id}/update`,{method:'POST',body:JSON.stringify({status:'filed',sar_status:'filed',officer})});
-  if(r?.ok){toast(`SAR filed — FinCEN ref: ${(await api('/api/sar')||{}).records?.[0]?.fincen_ref||'pending'}`);setTimeout(()=>go('cases'),1200);}
+  if(r?.ok){
+    const sarRef = (await api('/api/sar')||{}).records?.[0]?.fincen_ref || 'pending';
+    toast(`SAR filed — FinCEN ref: ${sarRef}`);
+    setTimeout(()=>go('cases'),1200);
+  }
 }
 async function updateCaseStatus(id, status) {
-  await api(`/api/cases/${id}/update`,{method:'POST',body:JSON.stringify({status})});
+  const officer = _currentUser?.name || '';
+  await api(`/api/cases/${id}/update`,{method:'POST',body:JSON.stringify({status, officer})});
   toast(`Case updated → ${status}`); go('cases');
+}
+
+async function showCaseAssignDialog(caseId) {
+  const ud = await api('/api/users') || {};
+  const users = (ud.users||[]).filter(u=>u.active!==false && u.role!=='readonly');
+  const opts  = users.map(u=>`<option value="${u.name}">${u.name} (${u.role})</option>`).join('');
+  const html = `
+    <div style="position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:999;display:flex;align-items:center;justify-content:center" id="casn-modal" onclick="if(event.target.id==='casn-modal')this.remove()">
+      <div style="background:var(--bg1);border-radius:12px;padding:24px;width:340px;box-shadow:0 20px 60px rgba(0,0,0,.4)">
+        <div style="font-size:14px;font-weight:600;margin-bottom:16px">Re-assign Case</div>
+        <label style="font-size:11px;color:var(--tx2);display:block;margin-bottom:6px">Assign to officer</label>
+        <select id="casn-user" style="width:100%;margin-bottom:16px"><option value="">Select officer…</option>${opts}</select>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn" onclick="document.getElementById('casn-modal').remove()">Cancel</button>
+          <button class="btn primary" onclick="submitCaseAssign('${caseId}')">Assign</button>
+        </div>
+      </div>
+    </div>`;
+  document.body.insertAdjacentHTML('beforeend', html);
+}
+
+async function submitCaseAssign(caseId) {
+  const officer = document.getElementById('casn-user')?.value;
+  if(!officer) { toast('Please select an officer','error'); return; }
+  document.getElementById('casn-modal')?.remove();
+  const r = await api(`/api/cases/${caseId}/update`,{method:'POST',body:JSON.stringify({officer, assigned_by: _currentUser?.name})});
+  if(r?.ok) { toast(`Case reassigned to ${officer}`); openCase(caseId); }
 }
 
 // ── Deployment ────────────────────────────────────────────────────────────────
@@ -2134,6 +2406,11 @@ async function submitLogin() {
     if(sf) sf.innerHTML='Connected';
     updateUserBadge();
     await api('/api/auth/me').then(d=>{if(d?.permissions)_userPerms=new Set(d.permissions);});
+    // Show supervisor-only nav items
+    const supNav = document.getElementById('nav-supqueue');
+    if(supNav) supNav.style.display = _userPerms.has('file_sar') ? '' : 'none';
+    // Poll supervisor queue badge
+    if(_userPerms.has('file_sar')) refreshSupQueueBadge();
     go('dashboard');
   } else {
     showErr(r.error||'Login failed');
@@ -2153,6 +2430,11 @@ async function submitTfa() {
     document.querySelector('.app').style.display='flex';
     updateUserBadge();
     await api('/api/auth/me').then(d=>{if(d?.permissions)_userPerms=new Set(d.permissions);});
+    // Show supervisor-only nav items
+    const supNav = document.getElementById('nav-supqueue');
+    if(supNav) supNav.style.display = _userPerms.has('file_sar') ? '' : 'none';
+    // Poll supervisor queue badge
+    if(_userPerms.has('file_sar')) refreshSupQueueBadge();
     go('dashboard');
   } else { showErr(r?.error||'Invalid code'); }
 }
@@ -2469,13 +2751,12 @@ ${(data.emerging_typologies||[]).map((e,i)=>`<p>${i+1}. <strong>${e.typology}</s
 
 // ── 5. USER MANAGEMENT ────────────────────────────────────────────────────────
 async function userManagement() {
-  if(!_userPerms.has('manage_users') && !_userPerms.has('view_all_audit')) {
-    $('content').innerHTML=`<div style="padding:40px;text-align:center"><div style="font-size:32px;margin-bottom:12px">🔒</div><div style="font-size:14px;font-weight:500">Access restricted</div><div style="font-size:13px;color:var(--tx2);margin-top:6px">User management requires admin role</div></div>`;
-    return;
-  }
+  // Analysts, supervisors and admins all have access — backend filters what they see
+  if(!_authToken) { showLogin(); return; }
   const data = await api('/api/users') || {};
   const users = data.users || [];
-  const auditData = await api('/api/users/audit') || {};
+  const canManage = data.can_manage || _userPerms.has('manage_users');
+  const auditData = canManage ? (await api('/api/users/audit') || {}) : {};
   const audit = auditData.audit || [];
 
   $('content').innerHTML = `
@@ -2488,7 +2769,7 @@ async function userManagement() {
 <div class="g2">
 <div>
 <div class="card" style="margin-bottom:14px">
-  <div class="ch"><span class="ct">Users</span><button class="btn" onclick="showCreateUser()" style="font-size:11px;padding:4px 10px">+ Add user</button></div>
+  <div class="ch"><span class="ct">Users ${canManage?"":"(View only)"}</span>${canManage?`<button class="btn" onclick="showCreateUser()" style="font-size:11px;padding:4px 10px">+ Add user</button>`:''}</div>
   <div id="user-list" style="padding:0">
   ${users.map(u=>`
   <div style="display:flex;align-items:center;gap:10px;padding:12px;border-bottom:1px solid var(--bdr)">
@@ -2504,8 +2785,8 @@ async function userManagement() {
     </div>
     <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
       <span class="bp ${u.role==='admin'?'bc':u.role==='supervisor'?'bo':u.role==='analyst'?'bf':'bx'}" style="font-size:10px">${u.role}</span>
-      ${u.locked?`<button class="btn" onclick="unlockUser('${u.user_id}')" style="font-size:10px;padding:2px 8px">Unlock</button>`:''}
-      <button class="btn" onclick="editUser('${u.user_id}')" style="font-size:10px;padding:2px 8px">Edit</button>
+      ${u.locked && canManage ?`<button class="btn" onclick="unlockUser('${u.user_id}')" style="font-size:10px;padding:2px 8px">Unlock</button>`:''}
+      ${canManage ? `<button class="btn" onclick="editUser('${u.user_id}')" style="font-size:10px;padding:2px 8px">Edit</button>` : ''}
     </div>
   </div>`).join('')}
   </div>
@@ -2830,6 +3111,19 @@ async function ruleEngine() {
 // Register page
 const _rulesPrevGo = window.go;
 window.go = async function(page) {
+  if (page === 'supqueue') {
+    if(window._liveFeedTimer){clearInterval(window._liveFeedTimer);window._liveFeedTimer=null;}
+    Object.values(window._chartInst||{}).forEach(c=>{try{c.destroy()}catch(e){}});
+    window._chartInst={};
+    if(window.innerWidth<=768) closeSidebar();
+    document.querySelectorAll('.ni').forEach(el=>{
+      el.classList.toggle('active', el.getAttribute('onclick')==="go('supqueue')");
+    });
+    const pt=$('page-title'); if(pt) pt.textContent='Supervisor Queue';
+    $('content').innerHTML='<div style="padding:40px;text-align:center;color:var(--tx2)"><div class="spin"></div></div>';
+    await supqueue();
+    return;
+  }
   if (page === 'rules') {
     if(window._liveFeedTimer){clearInterval(window._liveFeedTimer);window._liveFeedTimer=null;}
     Object.values(window._chartInst||{}).forEach(c=>{try{c.destroy()}catch(e){}});
